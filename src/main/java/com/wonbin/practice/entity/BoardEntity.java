@@ -33,13 +33,24 @@ public class BoardEntity extends BaseEntity{
 
     public static BoardEntity toSaveEntity(BoardDto boardDto){
         BoardEntity boardEntity = BoardEntity.builder()
-                .id(boardDto.getId())
                 .boardWriter(boardDto.getBoardWriter())
                 .boardPass(boardDto.getBoardPass())
+                .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
                 .boardHits(0)
                 .build();
         return boardEntity;
     }
 
+    public static BoardEntity toUpdateEntity(BoardDto boardDto){
+        BoardEntity boardEntity = BoardEntity.builder()
+                .id(boardDto.getId())
+                .boardWriter(boardDto.getBoardWriter())
+                .boardPass(boardDto.getBoardPass())
+                .boardTitle(boardDto.getBoardTitle())
+                .boardContents(boardDto.getBoardContents())
+                .boardHits(boardDto.getBoardHits())
+                .build();
+        return boardEntity;
+    }
 }
