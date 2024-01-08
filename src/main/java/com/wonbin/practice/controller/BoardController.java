@@ -1,7 +1,9 @@
 package com.wonbin.practice.controller;
 
 import com.wonbin.practice.dto.BoardDto;
+import com.wonbin.practice.dto.CommentDto;
 import com.wonbin.practice.service.BoardService;
+import com.wonbin.practice.service.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,6 +20,7 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
+    private final CommentService commentService;
 
     @GetMapping("/save")
     public String saveForm() {
@@ -46,11 +49,17 @@ public class BoardController {
         /*
             1. 조회 수 올리기
             2. 게시글 데이터 출력
+            3. 게시글 댓글 목록 출력
          */
         boardService.updateHits(id);
         BoardDto boardDto = boardService.findById(id);
+
+        List<CommentDto> commentDtoList = commentService.findAll(id);
+        model.addAttribute("comment", commentDtoList);
+
         model.addAttribute("board", boardDto);
         model.addAttribute("page", pageable.getPageNumber());
+
         return "detail";
     }
 
