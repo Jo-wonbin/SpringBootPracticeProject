@@ -62,11 +62,20 @@
             <td th:text="${comment.commentWriter}"></td>
             <td th:text="${comment.commentContents}"></td>
             <td th:text="${comment.commentCreatedTime}"></td>
+            <td>
+                <button id="comment-update-btn" onclick="">수정</button>
+            </td>
+            <td>
+                <button th:value="${comment.id}" class="deleteButton">삭제</button>
+            </td>
         </tr>
     </table>
 </div>
 
 </body>
+<table style="width: 50px">
+
+</table>
 <script th:inline="javascript">
     const commentWrite = () => {
         const writer = document.getElementById("commentWriter").value;
@@ -85,23 +94,8 @@
             },
             success: function (res) {
                 console.log("요청성공", res);
-                let output = "<table>";
-                output += "<tr><th>댓글번호</th>";
-                output += "<th>작성자</th>";
-                output += "<th>내용</th>";
-                output += "<th>작성시간</th></tr>";
-                for (let i in res) {
-                    output += "<tr>";
-                    output += "<td>" + res[i].id + "</td>";
-                    output += "<td>" + res[i].commentWriter + "</td>";
-                    output += "<td>" + res[i].commentContents + "</td>";
-                    output += "<td>" + res[i].commentCreatedTime + "</td>";
-                    output += "</tr>";
-                }
-                output += "</table>";
-                document.getElementById('comment-list').innerHTML = output;
-                document.getElementById('commentWriter').value = '';
-                document.getElementById('commentContents').value = '';
+                const id = [[${board.id}]];
+                location.href = "/board/" + id;
             },
             error: function (err) {
                 console.log("요청실패", err);
@@ -124,5 +118,10 @@
         const id = [[${board.id}]];
         location.href = "/board/delete/" + id;
     }
+    $('.deleteButton').click(function() {
+        const id = $(this).val();
+        location.href = "/comment/delete/" + id;
+    });
+
 </script>
 </html>
