@@ -22,23 +22,45 @@ public class CommentService {
     public Long save(CommentDto commentDto) {
         // 부모 엔티티 조회
         Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(commentDto.getBoardId());
-        if(optionalBoardEntity.isPresent()){
+        if (optionalBoardEntity.isPresent()) {
             BoardEntity boardEntity = optionalBoardEntity.get();
             CommentEntity commentEntity = CommentEntity.toSaveComment(commentDto, boardEntity);
             return commentRepository.save(commentEntity).getId();
-        }else{
+        } else {
             return null;
         }
     }
 
     public List<CommentDto> findAll(Long boardId) {
-        List<CommentDto> commentDtoList = new ArrayList<>();
         BoardEntity boardEntity = boardRepository.findById(boardId).get();
         List<CommentEntity> commentEntityList = commentRepository.findAllByBoardEntityOrderByIdDesc(boardEntity);
 
-        for(CommentEntity  commentEntity : commentEntityList){
-            commentDtoList.add(CommentDto.toChangeCommentDto(commentEntity, boardId));
+        List<CommentDto> commentDtoList = new ArrayList<>();
+        for (CommentEntity commentEntity : commentEntityList) {
+            CommentDto commentDto = CommentDto.toChangeCommentDto(commentEntity, boardId);
+            commentDtoList.add(commentDto);
         }
         return commentDtoList;
+    }
+
+    public Long delete(Long id) {
+
+        BoardEntity boardEntity = commentRepository.findBoardIdByCommentId(id);
+
+        if (boardEntity != null) {
+            System.out.println("게시글의 아이디 = " + boardEntity.getId());
+            System.out.println("게시글의 아이디 = " + boardEntity.getBoardTitle());
+            System.out.println("게시글의 아이디 = " + boardEntity.getBoardWriter());
+            System.out.println("게시글의 아이디 = " + boardEntity.getBoardContents());
+            System.out.println("게시글의 아이디 = " + boardEntity.getBoardHits());
+            System.out.println("게시글의 아이디 = " + boardEntity.getCreatedTime());
+            commentRepository.deleteById(id);
+
+            return boardEntity.getId();
+
+        } else {
+            return 0L;
+        }
+
     }
 }

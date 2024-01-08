@@ -13,4 +13,8 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
 
     // select * from comment where board_id = ? order by desc;
     List<CommentEntity> findAllByBoardEntityOrderByIdDesc(BoardEntity boardEntity);
+
+    @Query(value = "select c.boardEntity from CommentEntity c where c.id=:id")
+    BoardEntity findBoardIdByCommentId(Long id);
+
 }
