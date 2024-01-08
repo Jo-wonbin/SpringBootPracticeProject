@@ -4,6 +4,9 @@ import com.wonbin.practice.dto.BoardDto;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -11,7 +14,7 @@ import lombok.*;
 @Table(name = "board_table")
 @NoArgsConstructor
 @AllArgsConstructor
-public class BoardEntity extends BaseEntity{
+public class BoardEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -31,7 +34,15 @@ public class BoardEntity extends BaseEntity{
     @Column
     private int boardHits;
 
-    public static BoardEntity toSaveEntity(BoardDto boardDto){
+    /*
+        comment 테이블과 연결
+        board가 지워지면 댓글도 모두 삭제
+        orphanRemoval 옵션을 true 로 하면 기존 NULL 처리된 자식을 DELETE 한다.
+     */
+    @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CommentEntity> commentEntityList = new ArrayList<>();
+
+    public static BoardEntity toSaveEntity(BoardDto boardDto) {
         BoardEntity boardEntity = BoardEntity.builder()
                 .boardWriter(boardDto.getBoardWriter())
                 .boardPass(boardDto.getBoardPass())
@@ -42,7 +53,7 @@ public class BoardEntity extends BaseEntity{
         return boardEntity;
     }
 
-    public static BoardEntity toUpdateEntity(BoardDto boardDto){
+    public static BoardEntity toUpdateEntity(BoardDto boardDto) {
         BoardEntity boardEntity = BoardEntity.builder()
                 .id(boardDto.getId())
                 .boardWriter(boardDto.getBoardWriter())
