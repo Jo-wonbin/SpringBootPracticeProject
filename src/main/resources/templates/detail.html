@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <title>detail</title>
     <!-- jquery cdn -->
-    <script src="https://code.jquery.com/jquery-3.6.3.min.js" integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"
+            integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU=" crossorigin="anonymous"></script>
 </head>
 <body>
 <table>
@@ -32,10 +33,10 @@
         <th>contents</th>
         <td th:text="${board.boardContents}"></td>
     </tr>
-<!--    <tr th:if="${board.fileAttached == 1}">-->
-<!--        <th>image</th>-->
-<!--        <td><img th:src="@{|/upload/${board.storedFileName}|}" alt=""></td>-->
-<!--    </tr>-->
+    <!--    <tr th:if="${board.fileAttached == 1}">-->
+    <!--        <th>image</th>-->
+    <!--        <td><img th:src="@{|/upload/${board.storedFileName}|}" alt=""></td>-->
+    <!--    </tr>-->
 </table>
 <button onclick="listReq()">목록</button>
 <button onclick="updateReq()">수정</button>
@@ -63,7 +64,7 @@
             <td th:text="${comment.commentContents}"></td>
             <td th:text="${comment.commentCreatedTime}"></td>
             <td>
-                <button id="comment-update-btn" onclick="">수정</button>
+                <button th:value="${comment.id}" class="updateButton">수정</button>
             </td>
             <td>
                 <button th:value="${comment.id}" class="deleteButton">삭제</button>
@@ -82,31 +83,36 @@
         const contents = document.getElementById("commentContents").value;
         console.log("작성자: ", writer);
         console.log("내용: ", contents);
-        const id = [[${board.id}]];
-        $.ajax({
-            // 요청방식: post, 요청주소: /comment/save, 요청데이터: 작성자, 작성내용, 게시글번호
-            type: "post",
-            url: "/comment/save",
-            data: {
-                "commentWriter": writer,
-                "commentContents": contents,
-                "boardId": id
-            },
-            success: function (res) {
-                console.log("요청성공", res);
-                const id = [[${board.id}]];
-                location.href = "/board/" + id;
-            },
-            error: function (err) {
-                console.log("요청실패", err);
-            }
-        });
-
+        if (writer == "") {
+            alert("작성자를 입력해주세요.");
+        } else if (contents == "") {
+            alert("내용을 입력해주세요.");
+        } else {
+            const id = [[${board.id}]];
+            $.ajax({
+                // 요청방식: post, 요청주소: /comment/save, 요청데이터: 작성자, 작성내용, 게시글번호
+                type: "post",
+                url: "/comment/save",
+                data: {
+                    "commentWriter": writer,
+                    "commentContents": contents,
+                    "boardId": id
+                },
+                success: function (res) {
+                    console.log("요청성공", res);
+                    const id = [[${board.id}]];
+                    location.href = "/board/" + id;
+                },
+                error: function (err) {
+                    console.log("요청실패", err);
+                }
+            });
+        }
     }
     const listReq = () => {
         console.log("목록 요청");
         const page = [[${page}]];
-        location.href = "/board/paging?page="+page;
+        location.href = "/board/paging?page=" + page;
     }
     const updateReq = () => {
         console.log("수정 요청");
@@ -118,7 +124,11 @@
         const id = [[${board.id}]];
         location.href = "/board/delete/" + id;
     }
-    $('.deleteButton').click(function() {
+    $('.updateButton').click(function () {
+        const id = $(this).val();
+        location.href = "/comment/update/" + id;
+    });
+    $('.deleteButton').click(function () {
         const id = $(this).val();
         location.href = "/comment/delete/" + id;
     });
