@@ -14,6 +14,7 @@ import java.util.List;
 @Table(name = "board_table")
 @NoArgsConstructor
 @AllArgsConstructor
+@ToString
 public class BoardEntity extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +35,12 @@ public class BoardEntity extends BaseEntity {
     @Column
     private int boardHits;
 
+    @Column
+    private int fileAttached; // 1 or 0
+
+    @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<BoardFileEntity> boardFileEntityList = new ArrayList<>();
+
     /*
         comment 테이블과 연결
         board가 지워지면 댓글도 모두 삭제
@@ -49,6 +56,19 @@ public class BoardEntity extends BaseEntity {
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
                 .boardHits(0)
+                .fileAttached(0) // 파일 없음.
+                .build();
+        return boardEntity;
+    }
+
+    public static BoardEntity toSaveFileEntity(BoardDto boardDto) {
+        BoardEntity boardEntity = BoardEntity.builder()
+                .boardWriter(boardDto.getBoardWriter())
+                .boardPass(boardDto.getBoardPass())
+                .boardTitle(boardDto.getBoardTitle())
+                .boardContents(boardDto.getBoardContents())
+                .boardHits(0)
+                .fileAttached(1)
                 .build();
         return boardEntity;
     }
