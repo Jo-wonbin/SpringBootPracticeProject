@@ -47,4 +47,15 @@ public class CommentEntity {
         return commentEntity;
     }
 
+    public static CommentEntity toUpdateComment(CommentDto commentDto, BoardEntity boardEntity){
+
+        CommentEntity commentEntity = CommentEntity.builder()
+                .id(commentDto.getId())
+                .commentWriter(commentDto.getCommentWriter())
+                .commentContents(commentDto.getCommentContents())
+                .boardEntity(boardEntity)
+                .commentCreatedTime(LocalDateTime.now())
+                .build();
+        return commentEntity;
+    }
 }

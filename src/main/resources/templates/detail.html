@@ -58,10 +58,10 @@
             <th>내용</th>
             <th>작성시간</th>
         </tr>
-        <tr th:each="comment: ${commentList}">
+        <tr th:each="comment: ${commentList}" id="nowComment">
             <td th:text="${comment.id}"></td>
-            <td th:text="${comment.commentWriter}"></td>
-            <td th:text="${comment.commentContents}"></td>
+            <td th:text="${comment.commentWriter}" class="updateCommentWriter"></td>
+            <td th:text="${comment.commentContents}" class="updateCommentContents"></td>
             <td th:text="${comment.commentCreatedTime}"></td>
             <td>
                 <button th:value="${comment.id}" class="updateButton">수정</button>
@@ -78,6 +78,7 @@
 
 </table>
 <script th:inline="javascript">
+    let commentId = 0;
     const commentWrite = () => {
         const writer = document.getElementById("commentWriter").value;
         const contents = document.getElementById("commentContents").value;
@@ -89,24 +90,48 @@
             alert("내용을 입력해주세요.");
         } else {
             const id = [[${board.id}]];
-            $.ajax({
-                // 요청방식: post, 요청주소: /comment/save, 요청데이터: 작성자, 작성내용, 게시글번호
-                type: "post",
-                url: "/comment/save",
-                data: {
-                    "commentWriter": writer,
-                    "commentContents": contents,
-                    "boardId": id
-                },
-                success: function (res) {
-                    console.log("요청성공", res);
-                    const id = [[${board.id}]];
-                    location.href = "/board/" + id;
-                },
-                error: function (err) {
-                    console.log("요청실패", err);
-                }
-            });
+            const buttonValue = $("#comment-write-btn").text();
+            console.log(buttonValue);
+            if(buttonValue == "댓글작성"){
+                $.ajax({
+                    // 요청방식: post, 요청주소: /comment/save, 요청데이터: 작성자, 작성내용, 게시글번호
+                    type: "post",
+                    url: "/comment/save",
+                    data: {
+                        "commentWriter": writer,
+                        "commentContents": contents,
+                        "boardId": id
+                    },
+                    success: function (res) {
+                        console.log("요청성공", res);
+                        const id = [[${board.id}]];
+                        location.href = "/board/" + id;
+                    },
+                    error: function (err) {
+                        console.log("요청실패", err);
+                    }
+                });
+            }else{
+                $.ajax({
+                    // 요청방식: post, 요청주소: /comment/update, 요청데이터: 작성자, 작성내용, 게시글번호
+                    type: "post",
+                    url: "/comment/update",
+                    data: {
+                        "id": commentId,
+                        "commentWriter": writer,
+                        "commentContents": contents,
+                        "boardId": id
+                    },
+                    success: function (res) {
+                        console.log("요청성공", res);
+                        const id = [[${board.id}]];
+                        location.href = "/board/" + id;
+                    },
+                    error: function (err) {
+                        console.log("요청실패", err);
+                    }
+                });
+            }
         }
     }
     const listReq = () => {
@@ -126,7 +151,17 @@
     }
     $('.updateButton').click(function () {
         const id = $(this).val();
-        location.href = "/comment/update/" + id;
+        const writer = $(this).parents().children(".updateCommentWriter").text();
+        const contents = $(this).parents().children(".updateCommentContents").text();
+
+        $("#commentWriter").attr('value', writer);
+        $("#commentContents").attr('value', contents);
+
+        $("#comment-write-btn").html("수정");
+        $("#comment-write-btn").val("수정");
+        commentId = id;
+        console.log(writer);
+        console.log(contents);
     });
     $('.deleteButton').click(function () {
         const id = $(this).val();
