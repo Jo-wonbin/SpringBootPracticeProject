@@ -33,10 +33,10 @@
         <th>contents</th>
         <td th:text="${board.boardContents}"></td>
     </tr>
-    <!--    <tr th:if="${board.fileAttached == 1}">-->
-    <!--        <th>image</th>-->
-    <!--        <td><img th:src="@{|/upload/${board.storedFileName}|}" alt=""></td>-->
-    <!--    </tr>-->
+    <tr th:if="${board.fileAttached == 1}">
+        <th>image</th>
+        <td><img th:src="@{|/upload/${board.storedFileName}|}" alt="이미지 없음"></td>
+    </tr>
 </table>
 <button onclick="listReq()">목록</button>
 <button onclick="updateReq()">수정</button>
@@ -92,7 +92,7 @@
             const id = [[${board.id}]];
             const buttonValue = $("#comment-write-btn").text();
             console.log(buttonValue);
-            if(buttonValue == "댓글작성"){
+            if (buttonValue == "댓글작성") {
                 $.ajax({
                     // 요청방식: post, 요청주소: /comment/save, 요청데이터: 작성자, 작성내용, 게시글번호
                     type: "post",
@@ -111,7 +111,7 @@
                         console.log("요청실패", err);
                     }
                 });
-            }else{
+            } else {
                 $.ajax({
                     // 요청방식: post, 요청주소: /comment/update, 요청데이터: 작성자, 작성내용, 게시글번호
                     type: "post",
