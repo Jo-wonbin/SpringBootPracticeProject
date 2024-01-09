@@ -48,19 +48,21 @@ public class BoardService {
                 6. board_table에 해당 데이터 save 처리
                 7, board_file_table에 해당 데이터 save 처리
              */
-            MultipartFile boardFile = boardDto.getBoardFile(); // 1
-            String originalFilename = boardFile.getOriginalFilename(); // 2
-            String storedFilename = System.currentTimeMillis() + "_" + originalFilename; // 3
-            String savePath = "C:/Users/user/Desktop/SpringBoot/image/" + storedFilename; // 4
-            boardFile.transferTo(new File(savePath)); // 5
 
             BoardEntity boardEntity = BoardEntity.toSaveFileEntity(boardDto);
             Long saveId = boardRepository.save(boardEntity).getId();
             BoardEntity board = boardRepository.findById(saveId).get();
 
-            BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(board, originalFilename, storedFilename);
-            boardFileRepository.save(boardFileEntity);
+//          MultipartFile boardFile = boardDto.getBoardFile();
+            for (MultipartFile boardFile : boardDto.getBoardFile()) { // 1
 
+                String originalFilename = boardFile.getOriginalFilename(); // 2
+                String storedFilename = System.currentTimeMillis() + "_" + originalFilename; // 3
+                String savePath = "C:/Users/user/Desktop/SpringBoot/image/" + storedFilename; // 4
+                boardFile.transferTo(new File(savePath)); // 5
+                BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(board, originalFilename, storedFilename); // 6
+                boardFileRepository.save(boardFileEntity); // 7
+            }
         }
     }
 
