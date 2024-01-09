@@ -1,19 +1,17 @@
 package com.wonbin.practice.controller;
 
-import com.wonbin.practice.dto.BoardDto;
 import com.wonbin.practice.dto.CommentDto;
 import com.wonbin.practice.service.CommentService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-@Api
+@Tag(name = "comment")
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/comment")
@@ -21,6 +19,7 @@ public class CommentController {
 
     private final CommentService commentService;
 
+    @Operation(summary = "댓글 저장", description = "댓글을 저장합니다.")
     @PostMapping("/save")
     public ResponseEntity save(@ModelAttribute CommentDto commentDto){
         System.out.println("commentDto = " + commentDto);
@@ -34,6 +33,7 @@ public class CommentController {
         }
     }
 
+    @Operation(summary = "댓글 삭제", description = "댓글을 삭제합니다.")
     @GetMapping("/delete/{id}")
     public String delete(@PathVariable Long id){
 
@@ -44,6 +44,7 @@ public class CommentController {
         return "redirect:/board/"+boardId;
     }
 
+    @Operation(summary = "댓글 수정", description = "댓글을 수정합니다.")
     @PostMapping("/update")
     public ResponseEntity update(@ModelAttribute CommentDto commentDto){
         System.out.println(commentDto.toString());
