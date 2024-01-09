@@ -48,19 +48,23 @@ public class CommentService {
         BoardEntity boardEntity = commentRepository.findBoardIdByCommentId(id);
 
         if (boardEntity != null) {
-            System.out.println("게시글의 아이디 = " + boardEntity.getId());
-            System.out.println("게시글의 아이디 = " + boardEntity.getBoardTitle());
-            System.out.println("게시글의 아이디 = " + boardEntity.getBoardWriter());
-            System.out.println("게시글의 아이디 = " + boardEntity.getBoardContents());
-            System.out.println("게시글의 아이디 = " + boardEntity.getBoardHits());
-            System.out.println("게시글의 아이디 = " + boardEntity.getCreatedTime());
             commentRepository.deleteById(id);
-
             return boardEntity.getId();
-
         } else {
             return 0L;
         }
 
+    }
+
+    public Long update(CommentDto commentDto) {
+        Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(commentDto.getBoardId());
+        if (optionalBoardEntity.isPresent()) {
+            BoardEntity boardEntity = optionalBoardEntity.get();
+            CommentEntity commentEntity = CommentEntity.toUpdateComment(commentDto, boardEntity);
+
+            return commentRepository.save(commentEntity).getId();
+        } else {
+            return null;
+        }
     }
 }
