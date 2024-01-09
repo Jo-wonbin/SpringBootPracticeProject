@@ -35,7 +35,10 @@
     </tr>
     <tr th:if="${board.fileAttached == 1}">
         <th>image</th>
-        <td><img th:src="@{|/upload/${board.storedFileName}|}" alt="이미지 없음"></td>
+        <!--        <td><img th:src="@{|/upload/${board.storedFileName}|}" alt="이미지 없음"></td>-->
+        <td th:each="fileName: ${board.storedFileName}">
+            <img th:src="@{|/upload/${fileName}|}" alt="이미지 없음" width="100" height="100">
+        </td>
     </tr>
 </table>
 <button onclick="listReq()">목록</button>
