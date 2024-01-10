@@ -5,7 +5,6 @@ import com.wonbin.practice.dto.CommentDto;
 import com.wonbin.practice.service.BoardService;
 import com.wonbin.practice.service.CommentService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,7 +36,7 @@ public class BoardController {
     public String save(@ModelAttribute BoardDto boardDto) throws IOException {
         System.out.println("boardDTO = " + boardDto);
         boardService.save(boardDto);
-        return "index";
+        return "boardIndex";
     }
 
     @Operation(summary = "전체 게시글 조회", description = "게시글을 조회합니다.")
@@ -90,7 +89,7 @@ public class BoardController {
     public String update(@ModelAttribute BoardDto boardDto, Model model){
         BoardDto board = boardService.update(boardDto);
         model.addAttribute("board", board);
-//        return "detail";
+
         return "redirect:/board/"+boardDto.getId();
     }
 
