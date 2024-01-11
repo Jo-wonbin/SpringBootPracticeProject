@@ -61,7 +61,7 @@ public class MemberController {
         if (loginResult != null) {
             // 로그인 성공 후 세션 부여
             httpSession.setAttribute("loginEmail", loginResult.getMemberEmail());
-            return "main";
+            return "homepage";
         } else {
             return "login";
         }

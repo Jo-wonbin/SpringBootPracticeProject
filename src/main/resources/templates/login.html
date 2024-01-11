@@ -1,14 +1,31 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <meta charset="UTF-8">
-  <title>login</title>
+    <title>Login</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- 다른 CSS 파일도 추가할 수 있습니다. -->
 </head>
 <body>
-<form action="/member/login" method="post">
-  이메일: <input type="text" name="memberEmail"> <br>
-  비밀번호: <input type="password" name="memberPassword"> <br>
-  <input type="submit" value="로그인">
-</form>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <h2>Login</h2>
+            <form th:action="@{/member/login}" method="post">
+                <div class="form-group">
+                    <label for="memberEmail">Email</label>
+                    <input type="text" class="form-control" id="memberEmail" name="memberEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" class="form-control" id="password" name="memberPassword" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <div class="mt-3">
+                <p>Don't have an account? <a th:href="@{/signUp}">Sign Up</a></p>
+            </div>
+        </div>
+    </div>
+</div>
 </body>
 </html>
