@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -24,11 +27,33 @@ public class MemberEntity {
     @Column
     private String memberName;
 
+    @Column
+    private String provinceName;
+
+    @Column
+    private String districtName;
+
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "province_id")
+//    private ProvinceEntity provinceEntity;
+//
+//    @ManyToOne(fetch = FetchType.LAZY)
+//    @JoinColumn(name = "district_id")
+//    private DistrictEntity districtEntity;
+
+    @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<BoardEntity> boardEntityList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<CommentEntity> commentEntityList = new ArrayList<>();
+
     public static MemberEntity toMemberEntity(MemberDto memberDto) {
         MemberEntity memberEntity = new MemberEntity();
         memberEntity.setMemberEmail(memberDto.getMemberEmail());
         memberEntity.setMemberPassword(memberDto.getMemberPassword());
         memberEntity.setMemberName(memberDto.getMemberName());
+        memberEntity.setProvinceName(memberDto.getProvinceName());
+        memberEntity.setDistrictName(memberDto.getDistrictName());
 
         return memberEntity;
     }
@@ -39,6 +64,8 @@ public class MemberEntity {
         memberEntity.setMemberEmail(memberDto.getMemberEmail());
         memberEntity.setMemberPassword(memberDto.getMemberPassword());
         memberEntity.setMemberName(memberDto.getMemberName());
+        memberEntity.setProvinceName(memberDto.getProvinceName());
+        memberEntity.setDistrictName(memberDto.getDistrictName());
 
         return memberEntity;
     }
