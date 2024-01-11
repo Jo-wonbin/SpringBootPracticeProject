@@ -35,7 +35,11 @@ public class AreaController {
 
     @GetMapping("/district")
     public ResponseEntity findDistrict(@RequestParam("provinceName") String provinceName) {
-        List<DistrictDto> districtDtoList = districtService.findByProvinceId(provinceName);
+        List<DistrictDto> districtDtoList = districtService.findByProvinceName(provinceName);
+        for (DistrictDto dto:districtDtoList
+             ) {
+            System.out.println(dto.toString());
+        }
         if (districtDtoList != null) {
             return new ResponseEntity<>(districtDtoList, HttpStatus.OK);
         } else {
