@@ -10,6 +10,21 @@ public class HomeController {
 
     @GetMapping("/")
     public String index() {
-        return "index";
+        return "login";
+    }
+
+    @GetMapping("/home")
+    public String goHome() {
+        return "homepage";
+    }
+
+    @GetMapping("/board")
+    public String loginMain() {
+        return "board";
+    }
+
+    @GetMapping("/signUp")
+    public String signUp() {
+        return "signUp";
     }
 }
