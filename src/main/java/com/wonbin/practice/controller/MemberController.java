@@ -6,6 +6,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -55,7 +57,7 @@ public class MemberController {
 
     @Operation(summary = "회원 정보를 받아 로그인 여부 체크 후 로그인")
     @PostMapping("/login")
-    public String login(@ModelAttribute MemberDto memberDto, HttpSession httpSession) {
+    public String login(@ModelAttribute MemberDto memberDto, HttpSession httpSession, Model model) {
         System.out.println("MemberController.login");
         MemberDto loginResult = memberService.login(memberDto);
         if (loginResult != null) {
@@ -63,9 +65,24 @@ public class MemberController {
             httpSession.setAttribute("loginEmail", loginResult.getMemberEmail());
             return "homepage";
         } else {
+            model.addAttribute("error", "아이디 또는 비밀번호가 올바르지 않습니다.");
             return "login";
         }
     }
+
+//    @Operation(summary = "회원 정보를 받아 로그인 여부 체크 후 로그인")
+//    @PostMapping("/login")
+//    public ResponseEntity login(@ModelAttribute MemberDto memberDto, HttpSession httpSession) {
+//        System.out.println("MemberController.login");
+//        MemberDto loginResult = memberService.login(memberDto);
+//        if (loginResult != null) {
+//            // 로그인 성공 후 세션 부여
+//            httpSession.setAttribute("loginEmail", loginResult.getMemberEmail());
+//            return new ResponseEntity<>("로그인 성공!!", HttpStatus.OK);
+//        } else {
+//            return new ResponseEntity<>("이메일과 비밀번호를 다시 확인해주세요.", HttpStatus.NOT_FOUND);
+//        }
+//    }
 
     @Operation(summary = "특정 회원 정보를 상세 조회")
     @GetMapping("/{id}")

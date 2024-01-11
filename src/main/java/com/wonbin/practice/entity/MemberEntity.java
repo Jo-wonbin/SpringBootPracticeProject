@@ -33,14 +33,6 @@ public class MemberEntity {
     @Column
     private String districtName;
 
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "province_id")
-//    private ProvinceEntity provinceEntity;
-//
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "district_id")
-//    private DistrictEntity districtEntity;
-
     @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BoardEntity> boardEntityList = new ArrayList<>();
 
