@@ -36,7 +36,17 @@ public class BoardEntity extends BaseEntity {
     private int boardHits;
 
     @Column
+    private Long provinceId;
+
+    @Column
+    private Long districtId;
+
+    @Column
     private int fileAttached; // 1 or 0
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private MemberEntity memberEntity;
 
     @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<BoardFileEntity> boardFileEntityList = new ArrayList<>();
@@ -55,6 +65,8 @@ public class BoardEntity extends BaseEntity {
                 .boardPass(boardDto.getBoardPass())
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
+                .provinceId(boardDto.getProvinceId())
+                .districtId(boardDto.getDistrictId())
                 .boardHits(0)
                 .fileAttached(0) // 파일 없음.
                 .build();
@@ -67,6 +79,8 @@ public class BoardEntity extends BaseEntity {
                 .boardPass(boardDto.getBoardPass())
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
+                .provinceId(boardDto.getProvinceId())
+                .districtId(boardDto.getDistrictId())
                 .boardHits(0)
                 .fileAttached(1)
                 .build();
