@@ -24,6 +24,8 @@ public class BoardDto {
     private String boardTitle;
     private String boardContents;
     private int boardHits;
+    private Long provinceId;
+    private Long districtId;
     private LocalDateTime boardCreatedTime;
     private LocalDateTime boardUpdatedTime;
 
@@ -48,6 +50,8 @@ public class BoardDto {
         boardDto.setBoardTitle(boardEntity.getBoardTitle());
         boardDto.setBoardPass(boardEntity.getBoardPass());
         boardDto.setBoardHits(boardEntity.getBoardHits());
+        boardDto.setProvinceId(boardEntity.getProvinceId());
+        boardDto.setDistrictId(boardEntity.getDistrictId());
         boardDto.setBoardCreatedTime(boardEntity.getCreatedTime());
         boardDto.setBoardUpdatedTime(boardEntity.getUpdatedTime());
 

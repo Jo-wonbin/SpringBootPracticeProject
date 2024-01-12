@@ -33,10 +33,10 @@ public class MemberController {
     }
 
     @Operation(summary = "회원가입 페이지 출력 요청")
-    @GetMapping("/save")
-    public String saveForm() {
-        System.out.println("MemberController.saveForm");
-        return "saveMember";
+    @GetMapping("/signUp")
+    public String goToSignUp() {
+        System.out.println("MemberController.goToSignUp");
+        return "signUp";
     }
 
     @Operation(summary = "회원가입 정보 DB 저장")
@@ -63,6 +63,7 @@ public class MemberController {
         if (loginResult != null) {
             // 로그인 성공 후 세션 부여
             httpSession.setAttribute("loginEmail", loginResult.getMemberEmail());
+            httpSession.setAttribute("memberName", loginResult.getMemberName());
             return "homepage";
         } else {
             model.addAttribute("error", "아이디 또는 비밀번호가 올바르지 않습니다.");
