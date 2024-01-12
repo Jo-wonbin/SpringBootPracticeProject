@@ -28,16 +28,20 @@ public class CommentEntity {
 
     /*
         board : comment = 1:N
-     */
+    */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
     private BoardEntity boardEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "member_id")
+    private MemberEntity memberEntity;
 
     @Column
     @CreationTimestamp
     private LocalDateTime commentCreatedTime;
 
-    public static CommentEntity toSaveComment(CommentDto commentDto, BoardEntity boardEntity){
+    public static CommentEntity toSaveComment(CommentDto commentDto, BoardEntity boardEntity) {
 
         CommentEntity commentEntity = CommentEntity.builder()
                 .commentWriter(commentDto.getCommentWriter())
@@ -47,7 +51,7 @@ public class CommentEntity {
         return commentEntity;
     }
 
-    public static CommentEntity toUpdateComment(CommentDto commentDto, BoardEntity boardEntity){
+    public static CommentEntity toUpdateComment(CommentDto commentDto, BoardEntity boardEntity) {
 
         CommentEntity commentEntity = CommentEntity.builder()
                 .id(commentDto.getId())
