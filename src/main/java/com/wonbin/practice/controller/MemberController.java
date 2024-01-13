@@ -41,12 +41,15 @@ public class MemberController {
 
     @Operation(summary = "회원가입 정보 DB 저장")
     @PostMapping("/save")
-    public String save(@ModelAttribute MemberDto memberDto
+    public ResponseEntity<String> save(@ModelAttribute MemberDto memberDto
     ) {
         System.out.println("MemberController.save");
-        System.out.println("memberDto = " + memberDto.toString());
-        memberService.save(memberDto);
-        return "login";
+        Long save = memberService.save(memberDto);
+        if(save == 1L){
+            return new ResponseEntity<>("회원가입 성공", HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>("회원가입 실패", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Operation(summary = "로그인 창 실행")
