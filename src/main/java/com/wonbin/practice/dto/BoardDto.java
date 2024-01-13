@@ -20,7 +20,6 @@ public class BoardDto {
 
     private Long id;
     private String boardWriter;
-    private String boardPass;
     private String boardTitle;
     private String boardContents;
     private int boardHits;
@@ -48,7 +47,6 @@ public class BoardDto {
         boardDto.setBoardWriter(boardEntity.getBoardWriter());
         boardDto.setBoardContents(boardEntity.getBoardContents());
         boardDto.setBoardTitle(boardEntity.getBoardTitle());
-        boardDto.setBoardPass(boardEntity.getBoardPass());
         boardDto.setBoardHits(boardEntity.getBoardHits());
         boardDto.setProvinceId(boardEntity.getProvinceId());
         boardDto.setDistrictId(boardEntity.getDistrictId());

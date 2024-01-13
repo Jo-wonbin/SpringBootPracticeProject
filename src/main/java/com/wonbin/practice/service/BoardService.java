@@ -30,8 +30,7 @@ public class BoardService {
     private final ProvinceRepository provinceRepository;
     private final DistrictRepository districtRepository;
 
-    public void save(BoardDto boardDto, String email) throws IOException {
-
+    public Long save(BoardDto boardDto, String email) throws IOException {
         /*
             1. 이메일로 회원 조회
             2. 회원 dto에 회원 이름 저장
@@ -62,73 +61,38 @@ public class BoardService {
                 System.out.println("파일이 비어있습니다.");
                 // 첨부 파일 없을 때
                 BoardEntity boardEntity = BoardEntity.toSaveEntity(boardDto);
-                boardRepository.save(boardEntity);
+                BoardEntity save = boardRepository.save(boardEntity);
+                if (save != null) {
+                    return 1L;
+                } else {
+                    return 0L;
+                }
             } else {
                 System.out.println("파일이 비지 않았습니다.");
                 BoardEntity boardEntity = BoardEntity.toSaveFileEntity(boardDto);
                 Long saveId = boardRepository.save(boardEntity).getId();
                 BoardEntity board = boardRepository.findById(saveId).get();
 
-                /*
-                    1. DTO에 담긴 파일을 꺼냄
-                    2. 파일의 이름을 가져옴
-                    3. 서버 저장용 이름을 만든다. // 내사진.jpg => 8826371246_내사진.jpg
-                    4. 저장 경로 설정
-                    5. 해당 경로에 파일 저장
-                    6. board_table에 해당 데이터 save 처리
-                    7, board_file_table에 해당 데이터 save 처리
-                */
+                BoardFileEntity fileSave  = new BoardFileEntity();
+                for (MultipartFile boardFile : boardDto.getBoardFile()) { // 1. DTO에 담긴 파일을 꺼냄
 
-                for (MultipartFile boardFile : boardDto.getBoardFile()) { // 1
-
-                    String originalFilename = boardFile.getOriginalFilename(); // 2
-                    String storedFilename = System.currentTimeMillis() + "_" + originalFilename; // 3
-                    String savePath = "C:/Users/user/Desktop/SpringBoot/image/" + storedFilename; // 4
-                    boardFile.transferTo(new File(savePath)); // 5
-                    BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(board, originalFilename, storedFilename); // 6
-                    boardFileRepository.save(boardFileEntity); // 7
+                    String originalFilename = boardFile.getOriginalFilename(); // 2. 파일의 이름을 가져옴
+                    String storedFilename = System.currentTimeMillis() + "_" + originalFilename; // 3. 서버 저장용 이름을 만든다. // 내사진.jpg => 8826371246_내사진.jpg
+                    String savePath = "C:/Users/user/Desktop/SpringBoot/image/" + storedFilename; // 4. 저장 경로 설정
+                    boardFile.transferTo(new File(savePath)); // 5. 해당 경로에 파일 저장
+                    BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(board, originalFilename, storedFilename); // 6. board_table에 해당 데이터 save 처리
+                    fileSave = boardFileRepository.save(boardFileEntity);// 7. board_file_table에 해당 데이터 save 처리
+                }
+                if (fileSave != null) {
+                    return 1L;
+                } else {
+                    return 0L;
                 }
             }
         } else {
-            return;
+            return 0L;
         }
-
     }
-
-//    public void save(BoardDto boardDto) throws IOException {
-//        // 파일 첨부 여부에 따라 로직 분리
-//        if (boardDto.getBoardFile().isEmpty()) {
-//            // 첨부 파일 없을 때
-//            BoardEntity boardEntity = BoardEntity.toSaveEntity(boardDto);
-//            boardRepository.save(boardEntity);
-//        } else {
-//            // 첨부 파일 있을 때
-//            /*
-//                1. DTO에 담긴 파일을 꺼냄
-//                2. 파일의 이름을 가져옴
-//                3. 서버 저장용 이름을 만든다. // 내사진.jpg => 8826371246_내사진.jpg
-//                4. 저장 경로 설정
-//                5. 해당 경로에 파일 저장
-//                6. board_table에 해당 데이터 save 처리
-//                7, board_file_table에 해당 데이터 save 처리
-//             */
-//
-//            BoardEntity boardEntity = BoardEntity.toSaveFileEntity(boardDto);
-//            Long saveId = boardRepository.save(boardEntity).getId();
-//            BoardEntity board = boardRepository.findById(saveId).get();
-//
-////          MultipartFile boardFile = boardDto.getBoardFile();
-//            for (MultipartFile boardFile : boardDto.getBoardFile()) { // 1
-//
-//                String originalFilename = boardFile.getOriginalFilename(); // 2
-//                String storedFilename = System.currentTimeMillis() + "_" + originalFilename; // 3
-//                String savePath = "C:/Users/user/Desktop/SpringBoot/image/" + storedFilename; // 4
-//                boardFile.transferTo(new File(savePath)); // 5
-//                BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(board, originalFilename, storedFilename); // 6
-//                boardFileRepository.save(boardFileEntity); // 7
-//            }
-//        }
-//    }
 
     /*
         게시글 전체 조회

@@ -23,9 +23,6 @@ public class BoardEntity extends BaseEntity {
     @Column(length = 20, nullable = false)
     private String boardWriter;
 
-    @Column // 크기  255, null 가능
-    private String boardPass;
-
     @Column
     private String boardTitle;
 
@@ -62,7 +59,6 @@ public class BoardEntity extends BaseEntity {
     public static BoardEntity toSaveEntity(BoardDto boardDto) {
         BoardEntity boardEntity = BoardEntity.builder()
                 .boardWriter(boardDto.getBoardWriter())
-                .boardPass(boardDto.getBoardPass())
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
                 .provinceId(boardDto.getProvinceId())
@@ -76,7 +72,6 @@ public class BoardEntity extends BaseEntity {
     public static BoardEntity toSaveFileEntity(BoardDto boardDto) {
         BoardEntity boardEntity = BoardEntity.builder()
                 .boardWriter(boardDto.getBoardWriter())
-                .boardPass(boardDto.getBoardPass())
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
                 .provinceId(boardDto.getProvinceId())
@@ -91,7 +86,6 @@ public class BoardEntity extends BaseEntity {
         BoardEntity boardEntity = BoardEntity.builder()
                 .id(boardDto.getId())
                 .boardWriter(boardDto.getBoardWriter())
-                .boardPass(boardDto.getBoardPass())
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
                 .boardHits(boardDto.getBoardHits())
