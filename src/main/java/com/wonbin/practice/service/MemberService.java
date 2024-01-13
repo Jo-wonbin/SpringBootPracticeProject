@@ -16,9 +16,14 @@ public class MemberService {
 
     private final MemberRepository memberRepository;
 
-    public void save(MemberDto memberDto) {
+    public Long save(MemberDto memberDto) {
         MemberEntity memberEntity = MemberEntity.toMemberEntity(memberDto);
-        memberRepository.save(memberEntity);
+        MemberEntity save = memberRepository.save(memberEntity);
+        if(save != null){
+            return 1L;
+        }else {
+            return 0L;
+        }
     }
 
     public MemberDto login(MemberDto memberDto) {

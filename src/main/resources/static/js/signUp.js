@@ -2,26 +2,51 @@
 $(document).ready(function () {
     loadProvinces();
 
+    $("#signUpForm").submit(function (event) {
+
+        event.preventDefault();
+
+        const check = checkPassword();
+
+        if (check === 2) {
+            alert("비밀번호를 확인해주세요.");
+            return;
+        }
+
+        const province = $("#province").val();
+        const district = $("#district").val();
+
+        if (province === "noneProvince" || district === "noneDistrict") {
+
+            alert("광역시와 지역구를 모두 선택하세요.");
+
+        } else {
+            // FormData 객체 생성
+            const formData = new FormData(this);
+
+            // 서버로 데이터 전송 (폼 액션 속성에 서버 URL을 지정할 수도 있음)
+            $.ajax({
+                type: "POST",
+                url: "/member/save",
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    // 서버 응답에 따라 알림창 표시
+                    alert(response);
+
+                    // 성공 여부에 따라 페이지 이동
+                    if (response === "회원가입 성공") {
+                        window.location.href = "/member/login"; // 성공 페이지로 이동
+                    }
+                },
+                error: function (error) {
+                    console.error("Ajax 요청 실패:", error);
+                }
+            });
+        }
+    });
 });
-
-function checkSubmitForm() {
-    const check = checkPassword();
-
-    if (check === 2) {
-        alert("비밀번호를 확인해주세요.");
-        return;
-    }
-
-    const province = $("#province").val();
-    const district = $("#district").val();
-
-    if (province === "noneProvince" || district === "noneDistrict") {
-        alert("광역시와 지역구를 모두 선택하세요.");
-        return false;
-    } else {
-        return true;
-    }
-}
 
 function checkPassword() {
     // 비밀번호와 비밀번호 확인 값을 가져옴

@@ -13,7 +13,7 @@
             src="https://code.jquery.com/jquery-3.6.3.min.js"
             integrity="sha256-pvPw+upLPUjgMXY0G+8O0xUf+/Im1MZjXxxgOcBQBXU="
             crossorigin="anonymous"></script>
-<!--    <script th:src="@{/js/boardWrite.js}"></script>-->
+    <script th:src="@{/js/boardWrite.js}"></script>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <!-- Custom CSS -->
     <style>
@@ -36,7 +36,7 @@
 <div class="container">
     <h2>게시글 작성</h2>
 
-    <form action="/board/save" method="post" id="postForm" enctype="multipart/form-data" onsubmit="return saveBoardFormSubmit()">
+    <form id="postForm" enctype="multipart/form-data">
         <div class="form-group">
             <label for="writer">작성자</label>
             <input th:value="${session.memberName}" type="text" class="form-control" id="writer" name="boardWriter"
@@ -62,20 +62,6 @@
         <button id="submitBtn" type="submit" class="btn btn-primary">게시글 작성</button>
     </form>
 </div>
-<script>
-    function saveBoardFormSubmit() {
-        // 입력된 데이터 가져오기
 
-        const files = $("#file").files;
-
-        for(let i=0; i<files.length; i++){
-            console.log(files[i]);
-        }
-
-        alert("버튼 작동 됌.");
-        return false;
-
-    }
-</script>
 </body>
 </html>

@@ -39,30 +39,30 @@ public class BoardController {
 
     }
 
-    @Operation(summary = "게시글 저장 이동", description = "게시글을 form 입력받아 저장합니다.")
-    @PostMapping("/save")
-    public String save(@ModelAttribute BoardDto boardDto, HttpSession session) {
-        System.out.println("boardDTO = " + boardDto);
-        String email = (String) session.getAttribute("loginEmail");
-        try {
-            boardService.save(boardDto, email);
-            return "board";
-        } catch (IOException e) {
-            return "redirect:/board/boardWrite";
-        }
-    }
-//    @Operation(summary = "게시글 저장 이동", description = "게시글을 form 입력받아 저장합니다.")
+    //    @Operation(summary = "게시글 저장 이동", description = "게시글을 form 입력받아 저장합니다.")
 //    @PostMapping("/save")
-//    public ResponseEntity save(@ModelAttribute BoardDto boardDto, HttpSession session) {
+//    public String save(@ModelAttribute BoardDto boardDto, HttpSession session) {
 //        System.out.println("boardDTO = " + boardDto);
 //        String email = (String) session.getAttribute("loginEmail");
 //        try {
 //            boardService.save(boardDto, email);
-//            return new ResponseEntity<>("1", HttpStatus.OK);
+//            return "board";
 //        } catch (IOException e) {
-//            return new ResponseEntity<>("0", HttpStatus.NOT_FOUND);
+//            return "redirect:/board/boardWrite";
 //        }
 //    }
+    @Operation(summary = "게시글 저장", description = "게시글을 form으로 입력받고 성공 여부 출력")
+    @PostMapping("/save")
+    public ResponseEntity<String> save(@ModelAttribute BoardDto boardDto, HttpSession session) throws IOException {
+        System.out.println("boardDTO = " + boardDto);
+        String email = (String) session.getAttribute("loginEmail");
+        Long save = boardService.save(boardDto, email);
+        if (save == 1L) {
+            return new ResponseEntity<>("게시글 작성 성공", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("게시글 작성 실패", HttpStatus.BAD_REQUEST);
+        }
+    }
 
     @Operation(summary = "전체 게시글 조회", description = "게시글을 조회합니다.")
     @GetMapping("")
@@ -79,9 +79,9 @@ public class BoardController {
     public ResponseEntity findAll() {
 
         List<BoardDto> boardDTOList = boardService.findAll();
-        if(boardDTOList != null){
+        if (boardDTOList != null) {
             return new ResponseEntity<>(boardDTOList, HttpStatus.OK);
-        }else {
+        } else {
             return new ResponseEntity<>("게시글이 없습니다.", HttpStatus.NOT_FOUND);
         }
     }
