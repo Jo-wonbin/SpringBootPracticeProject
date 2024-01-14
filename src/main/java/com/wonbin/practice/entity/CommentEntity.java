@@ -41,12 +41,13 @@ public class CommentEntity {
     @CreationTimestamp
     private LocalDateTime commentCreatedTime;
 
-    public static CommentEntity toSaveComment(CommentDto commentDto, BoardEntity boardEntity) {
+    public static CommentEntity toSaveComment(CommentDto commentDto, BoardEntity boardEntity, MemberEntity memberEntity) {
 
         CommentEntity commentEntity = CommentEntity.builder()
                 .commentWriter(commentDto.getCommentWriter())
                 .commentContents(commentDto.getCommentContents())
                 .boardEntity(boardEntity)
+                .memberEntity(memberEntity)
                 .build();
         return commentEntity;
     }

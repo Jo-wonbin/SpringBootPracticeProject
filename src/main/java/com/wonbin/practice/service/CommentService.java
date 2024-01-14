@@ -3,8 +3,10 @@ package com.wonbin.practice.service;
 import com.wonbin.practice.dto.CommentDto;
 import com.wonbin.practice.entity.BoardEntity;
 import com.wonbin.practice.entity.CommentEntity;
+import com.wonbin.practice.entity.MemberEntity;
 import com.wonbin.practice.repository.BoardRepository;
 import com.wonbin.practice.repository.CommentRepository;
+import com.wonbin.practice.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,17 +20,24 @@ public class CommentService {
 
     private final CommentRepository commentRepository;
     private final BoardRepository boardRepository;
+    private final MemberRepository memberRepository;
 
-    public Long save(CommentDto commentDto) {
-        // 부모 엔티티 조회
-        Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(commentDto.getBoardId());
-        if (optionalBoardEntity.isPresent()) {
-            BoardEntity boardEntity = optionalBoardEntity.get();
-            CommentEntity commentEntity = CommentEntity.toSaveComment(commentDto, boardEntity);
-            return commentRepository.save(commentEntity).getId();
-        } else {
+    public Long save(CommentDto commentDto, String email) {
+        Optional<MemberEntity> byMemberEmail = memberRepository.findByMemberEmail(email);
+        if (byMemberEmail.isPresent()) {
+            MemberEntity memberEntity = byMemberEmail.get();
+            // 부모 엔티티 조회
+            Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(commentDto.getBoardId());
+            if (optionalBoardEntity.isPresent()) {
+                BoardEntity boardEntity = optionalBoardEntity.get();
+                commentDto.setCommentWriter(memberEntity.getMemberName());
+                CommentEntity commentEntity = CommentEntity.toSaveComment(commentDto, boardEntity, memberEntity);
+                return commentRepository.save(commentEntity).getId();
+            } else {
+                return null;
+            }
+        } else
             return null;
-        }
     }
 
     public List<CommentDto> findAll(Long boardId) {
