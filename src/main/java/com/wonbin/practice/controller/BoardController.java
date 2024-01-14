@@ -124,12 +124,12 @@ public class BoardController {
         BoardDto boardDto = boardService.findById(id);
 
         List<CommentDto> commentDtoList = commentService.findAll(id);
-        model.addAttribute("commentList", commentDtoList);
+//        model.addAttribute("commentList", commentDtoList);
 
         model.addAttribute("board", boardDto);
-        model.addAttribute("page", pageable.getPageNumber());
+//        model.addAttribute("page", pageable.getPageNumber());
 
-        return "detail";
+        return "boardDetail";
     }
 
     /*

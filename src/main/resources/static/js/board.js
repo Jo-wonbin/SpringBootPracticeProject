@@ -10,15 +10,19 @@ function fetchBoardData() {
     $.ajax({
         url: '/board/all',  // 실제 서버 엔드포인트를 입력해야 합니다.
         method: 'GET',
-        success: function(data) {
+        success: function (data) {
             // 성공적으로 데이터를 받아왔을 때의 처리
             displayBoardData(data);
         },
-        error: function(error) {
+        error: function (error) {
             // 에러 발생 시의 처리
             console.error('Error fetching board data:', error);
         }
     });
+}
+
+function detailBoard(boardId) {
+    location.href = "/board/" + boardId;
 }
 
 // 받아온 데이터를 화면에 표시하는 함수
@@ -28,14 +32,14 @@ function displayBoardData(data) {
 
     // 받아온 데이터를 이용해 동적으로 테이블 행을 생성하여 추가
     for (const board of data) {
-        const row = `<tr>
+        const row = `<tr onclick="detailBoard(${board.id})">
                             <td>${board.id}</td>
                             <td>${board.boardTitle}</td>
                             <td>${board.boardWriter}</td>
                             <td>${board.boardHits}</td>
                             <td>${board.boardCreatedTime}</td>
-<!--                            <td>${board.provinceName}</td>-->
-<!--                            <td>${board.districtName}</td>-->
+                            <td>${board.provinceId}</td>
+                            <td>${board.districtId}</td>
                         </tr>`;
         $tbody.append(row);
     }
@@ -65,7 +69,7 @@ function loadProvinces() {
     const provinceSelect = $('#province');
 
     const provinceSelectValue = provinceSelect.val();
-    if(provinceSelectValue === 0){
+    if (provinceSelectValue === 0) {
         $('#district').append("<option value='0' selected>전체</option>");
         loadBoards(0, 0);
         return;
@@ -81,7 +85,7 @@ function loadProvinces() {
     });
 }
 
-function loadBoards(province, district){
+function loadBoards(province, district) {
     $.get('/board/all', function (data) {
         // 서버에서 받은 배열을 순회하면서 옵션을 추가
         console.log(data);
@@ -90,8 +94,9 @@ function loadBoards(province, district){
         });
     });
 }
+
 // 게시글 작성 버튼 클릭 이벤트 핸들러
 function boardWrite() {
     console.log("게시글 이동 버튼 클릭");
-    location.href="/board/boardWrite";
+    location.href = "/board/boardWrite";
 };
