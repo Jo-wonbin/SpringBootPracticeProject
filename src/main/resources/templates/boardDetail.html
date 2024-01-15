@@ -80,11 +80,13 @@
     }
     const updateReq = () => {
         console.log("수정 요청");
-        location.href = "/board/update/" + [[${board.id}]];
+        const id = [[${board.id}]];
+        window.location.href = '/board/update/' + id;
     }
     const deleteReq = () => {
         console.log("삭제 요청");
-        location.href = "/board/delete/" + [[${board.id}]];
+        const id = [[${board.id}]];
+        location.href = '/board/delete/' + id;
     }
 
     // 댓글 목록 불러오기
