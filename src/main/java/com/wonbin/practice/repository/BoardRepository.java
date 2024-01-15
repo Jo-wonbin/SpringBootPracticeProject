@@ -22,5 +22,4 @@ public interface BoardRepository extends JpaRepository<BoardEntity, Long> {
     List<BoardEntity> findAllByProvinceIdOrderByIdDesc(Long provinceId);
 
     List<BoardEntity> findAllByDistrictIdOrderByIdDesc(Long districtId);
-
 }

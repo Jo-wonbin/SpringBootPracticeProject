@@ -34,8 +34,8 @@ public class BoardService {
         /*
             1. 이메일로 회원 조회
             2. 회원 dto에 회원 이름 저장
-            3. 광역시 이름을 해당 ID로 바꾸어 저장
-            4. 지역구 이름을 해당 ID로 바꾸어 저장
+            3. 광역시 이름 저장
+            4. 지역구 이름 저장
          */
         Optional<MemberEntity> byMemberEmail = memberRepository.findByMemberEmail(email); // 1
         if (byMemberEmail.isPresent()) {
@@ -46,13 +46,15 @@ public class BoardService {
             ProvinceEntity provinceEntity = provinceEntityIterator.next();
 
             boardDto.setBoardWriter(memberEntity.getMemberName()); // 2
-            boardDto.setProvinceId(provinceEntity.getId()); // 3
+            boardDto.setProvinceId(provinceEntity.getId());
+            boardDto.setProvinceName(provinceEntity.getName()); // 3
 
             List<DistrictEntity> districtEntityList = districtRepository.findAllByProvinceEntity(provinceEntity);
             for (DistrictEntity districtEntity : districtEntityList) {
                 if (districtEntity.getName().equals(memberEntity.getDistrictName())) {
 
-                    boardDto.setDistrictId(districtEntity.getId()); // 4
+                    boardDto.setDistrictId(districtEntity.getId());
+                    boardDto.setDistrictName(districtEntity.getName()); // 4
                     break;
                 }
             }
@@ -73,7 +75,7 @@ public class BoardService {
                 Long saveId = boardRepository.save(boardEntity).getId();
                 BoardEntity board = boardRepository.findById(saveId).get();
 
-                BoardFileEntity fileSave  = new BoardFileEntity();
+                BoardFileEntity fileSave = new BoardFileEntity();
                 for (MultipartFile boardFile : boardDto.getBoardFile()) { // 1. DTO에 담긴 파일을 꺼냄
 
                     String originalFilename = boardFile.getOriginalFilename(); // 2. 파일의 이름을 가져옴

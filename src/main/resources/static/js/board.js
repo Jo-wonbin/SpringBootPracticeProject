@@ -38,8 +38,8 @@ function displayBoardData(data) {
                             <td>${board.boardWriter}</td>
                             <td>${board.boardHits}</td>
                             <td>${board.boardCreatedTime}</td>
-                            <td>${board.provinceId}</td>
-                            <td>${board.districtId}</td>
+                            <td>${board.provinceName}</td>
+                            <td>${board.districtName}</td>
                         </tr>`;
         $tbody.append(row);
     }
