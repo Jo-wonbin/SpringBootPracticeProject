@@ -3,6 +3,8 @@ package com.wonbin.practice.entity;
 import com.wonbin.practice.dto.BoardDto;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -49,6 +51,7 @@ public class BoardEntity extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private MemberEntity memberEntity;
 
     @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)

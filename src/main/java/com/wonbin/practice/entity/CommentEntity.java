@@ -4,6 +4,8 @@ import com.wonbin.practice.dto.CommentDto;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -31,10 +33,12 @@ public class CommentEntity {
     */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "board_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private BoardEntity boardEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private MemberEntity memberEntity;
 
     @Column

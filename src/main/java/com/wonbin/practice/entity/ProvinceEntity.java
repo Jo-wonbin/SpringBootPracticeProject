@@ -19,9 +19,7 @@ public class ProvinceEntity {
     @Column
     private String name;
 
-    @OneToMany(mappedBy = "provinceEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "provinceEntity", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<DistrictEntity> districtEntityList;
 
-//    @OneToMany(mappedBy = "provinceEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-//    private List<MemberEntity> memberEntityList;
 }
