@@ -42,10 +42,10 @@
     <button type="button" onclick="listReq()">게시글 목록</button>
 
     <!-- 게시글 수정 페이지로 이동하는 버튼 -->
-    <button type="button" onclick="updateReq(${board.id})">게시글 수정</button>
+    <button type="button" onclick="updateReq()">게시글 수정</button>
 
     <!-- 게시글 삭제 -->
-    <button type="button" onclick="deleteReq(${board.id})">게시글 삭제</button>
+    <button type="button" onclick="deleteReq()">게시글 삭제</button>
     <!-- 댓글 작성 폼 -->
     <div id="commentForm">
         <h3>댓글 작성</h3>
@@ -78,13 +78,13 @@
         console.log("목록 요청");
         location.href = "/board";
     }
-    const updateReq = (id) => {
+    const updateReq = () => {
         console.log("수정 요청");
-        location.href = "/board/update/" + id;
+        location.href = "/board/update/" + [[${board.id}]];
     }
-    const deleteReq = (id) => {
+    const deleteReq = () => {
         console.log("삭제 요청");
-        location.href = "/board/delete/" + id;
+        location.href = "/board/delete/" + [[${board.id}]];
     }
 
     // 댓글 목록 불러오기
@@ -99,9 +99,9 @@
                     commentsList.empty();
                     comments.forEach(function (comment) {
                         let commentItem = $('<li>');
-                        commentItem.append('<p>작성자: '+comment.commentWriter+'</p>');
-                        commentItem.append('<p>'+comment.commentContents+'</p>');
-                        commentItem.append('<p>'+comment.commentCreatedTime+'</p>');
+                        commentItem.append('<p>작성자: ' + comment.commentWriter + '</p>');
+                        commentItem.append('<p>' + comment.commentContents + '</p>');
+                        commentItem.append('<p>' + comment.commentCreatedTime + '</p>');
 
                         commentsList.append(commentItem);
                     });

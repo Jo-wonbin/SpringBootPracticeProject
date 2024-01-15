@@ -64,13 +64,10 @@ public class BoardController {
         }
     }
 
-    @Operation(summary = "전체 게시글 조회", description = "게시글을 조회합니다.")
+    @Operation(summary = "게시글 목록 이동", description = "게시글을 목록 이동")
     @GetMapping("")
-    public String findAll(Model model) {
-
-        // DB에서 전체 게시글 데이터를 가져와서 list.html에 보여준다.
-        List<BoardDto> boardDTOList = boardService.findAll();
-        model.addAttribute("boardList", boardDTOList);
+    public String goToBoardList(Model model) {
+        System.out.println("BoardController.goToBoardList");
         return "board";
     }
 
@@ -87,10 +84,10 @@ public class BoardController {
     }
 
     @Operation(summary = "광역시 게시글 조회", description = "게시글을 조회합니다.")
-    @GetMapping("/province")
-    public ResponseEntity findByProvince(@RequestParam("provinceId") Long provinceId) {
+    @GetMapping("/province/{id}")
+    public ResponseEntity findByProvince(@PathVariable Long id) {
 
-        List<BoardDto> boardDtoProvinceList = boardService.findByProvince(provinceId);
+        List<BoardDto> boardDtoProvinceList = boardService.findByProvince(id);
         if (boardDtoProvinceList != null) {
             return new ResponseEntity<>(boardDtoProvinceList, HttpStatus.OK);
         } else {
@@ -99,10 +96,10 @@ public class BoardController {
     }
 
     @Operation(summary = "지역구 게시글 조회", description = "게시글을 조회합니다.")
-    @GetMapping("/district")
-    public ResponseEntity findByDistrict(@RequestParam("districtId") Long districtId) {
+    @GetMapping("/district/{id}")
+    public ResponseEntity findByDistrict(@PathVariable Long id) {
 
-        List<BoardDto> boardDtoDistrictList = boardService.findByDistrict(districtId);
+        List<BoardDto> boardDtoDistrictList = boardService.findByDistrict(id);
         if (boardDtoDistrictList != null) {
             return new ResponseEntity<>(boardDtoDistrictList, HttpStatus.OK);
         } else {
