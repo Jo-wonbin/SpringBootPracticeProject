@@ -25,7 +25,7 @@ public class BoardDto {
     private int boardHits;
     private Long provinceId;
     private String provinceName;
-    private long districtId;
+    private Long districtId;
     private String districtName;
     private LocalDateTime boardCreatedTime;
     private LocalDateTime boardUpdatedTime;

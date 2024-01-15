@@ -16,7 +16,9 @@ public class MemberDto {
     private String memberEmail;
     private String memberPassword;
     private String memberName;
+    private Long provinceId;
     private String provinceName;
+    private Long districtId;
     private String districtName;
 
 
@@ -28,6 +30,8 @@ public class MemberDto {
         memberDto.setMemberName(memberEntity.getMemberName());
         memberDto.setProvinceName(memberEntity.getProvinceName());
         memberDto.setDistrictName(memberEntity.getDistrictName());
+        memberDto.setProvinceId(memberEntity.getProvinceId());
+        memberDto.setDistrictId(memberEntity.getDistrictId());
 
         return memberDto;
     }
