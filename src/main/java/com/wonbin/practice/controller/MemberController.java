@@ -44,6 +44,7 @@ public class MemberController {
     public ResponseEntity<String> save(@ModelAttribute MemberDto memberDto
     ) {
         System.out.println("MemberController.save");
+        System.out.println("memberDto = " + memberDto.toString());
         Long save = memberService.save(memberDto);
         if(save == 1L){
             return new ResponseEntity<>("회원가입 성공", HttpStatus.OK);
@@ -132,7 +133,7 @@ public class MemberController {
     @GetMapping("/logout")
     public String logout(HttpSession httpSession) {
         httpSession.invalidate();
-        return "index";
+        return "homepage";
     }
 
     @Operation(summary = "이메일 중복 체크")

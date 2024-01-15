@@ -1,8 +1,12 @@
 package com.wonbin.practice.service;
 
 import com.wonbin.practice.dto.MemberDto;
+import com.wonbin.practice.entity.DistrictEntity;
 import com.wonbin.practice.entity.MemberEntity;
+import com.wonbin.practice.entity.ProvinceEntity;
+import com.wonbin.practice.repository.DistrictRepository;
 import com.wonbin.practice.repository.MemberRepository;
+import com.wonbin.practice.repository.ProvinceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,13 +19,20 @@ import java.util.Optional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
+    private final ProvinceRepository provinceRepository;
+    private final DistrictRepository districtRepository;
 
     public Long save(MemberDto memberDto) {
+        Optional<ProvinceEntity> provinceEntity = provinceRepository.findById(memberDto.getProvinceId());
+        Optional<DistrictEntity> districtEntity = districtRepository.findById(memberDto.getDistrictId());
+        memberDto.setProvinceName(provinceEntity.get().getName());
+        memberDto.setDistrictName(districtEntity.get().getName());
+
         MemberEntity memberEntity = MemberEntity.toMemberEntity(memberDto);
         MemberEntity save = memberRepository.save(memberEntity);
-        if(save != null){
+        if (save != null) {
             return 1L;
-        }else {
+        } else {
             return 0L;
         }
     }
