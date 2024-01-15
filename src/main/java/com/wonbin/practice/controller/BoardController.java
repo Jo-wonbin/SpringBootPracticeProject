@@ -39,18 +39,6 @@ public class BoardController {
 
     }
 
-    //    @Operation(summary = "게시글 저장 이동", description = "게시글을 form 입력받아 저장합니다.")
-//    @PostMapping("/save")
-//    public String save(@ModelAttribute BoardDto boardDto, HttpSession session) {
-//        System.out.println("boardDTO = " + boardDto);
-//        String email = (String) session.getAttribute("loginEmail");
-//        try {
-//            boardService.save(boardDto, email);
-//            return "board";
-//        } catch (IOException e) {
-//            return "redirect:/board/boardWrite";
-//        }
-//    }
     @Operation(summary = "게시글 저장", description = "게시글을 form으로 입력받고 성공 여부 출력")
     @PostMapping("/save")
     public ResponseEntity<String> save(@ModelAttribute BoardDto boardDto, HttpSession session) throws IOException {
@@ -119,12 +107,7 @@ public class BoardController {
          */
         boardService.updateHits(id);
         BoardDto boardDto = boardService.findById(id);
-
-        List<CommentDto> commentDtoList = commentService.findAll(id);
-//        model.addAttribute("commentList", commentDtoList);
-
         model.addAttribute("board", boardDto);
-//        model.addAttribute("page", pageable.getPageNumber());
 
         return "boardDetail";
     }
@@ -139,17 +122,28 @@ public class BoardController {
     public String updateForm(@PathVariable Long id, Model model) {
 
         BoardDto boardDto = boardService.findById(id);
-        model.addAttribute("boardUpdate", boardDto);
-        return "update";
+        System.out.println(boardDto.toString());
+        model.addAttribute("board", boardDto);
+        return "boardUpdate";
     }
 
     @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
-    @PostMapping("/update")
-    public String update(@ModelAttribute BoardDto boardDto, Model model) {
-        BoardDto board = boardService.update(boardDto);
-        model.addAttribute("board", board);
+    @PostMapping("/update/{id}")
+    public ResponseEntity update(@PathVariable Long id, @ModelAttribute BoardDto boardDto) throws IOException {
+        Long update = boardService.update(boardDto, id);
 
-        return "redirect:/board/" + boardDto.getId();
+        if (update == 1L) {
+            return new ResponseEntity<>("게시글 수정 성공", HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>("게시글 수정 실패", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PostMapping("/delete/file")
+    public ResponseEntity deleteFiles(@RequestParam("deleteFile") String deleteFile) {
+        System.out.println("deleteFile = " + deleteFile);
+        boardService.deleteFiles(deleteFile);
+        return new ResponseEntity<>("파일 삭제 성공", HttpStatus.OK);
     }
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")

@@ -14,7 +14,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 // DTO -> Entity (Entity Class)
 // Entity -> DTO (DTO Class)
@@ -68,16 +71,17 @@ public class BoardService {
             System.out.println("파일이 비지 않았습니다.");
             BoardEntity boardEntity = BoardEntity.toSaveFileEntity(boardDto);
             Long saveId = boardRepository.save(boardEntity).getId();
-            BoardEntity board = boardRepository.findById(saveId).get();
+            Optional<BoardEntity> board = boardRepository.findById(saveId);
 
             BoardFileEntity fileSave = new BoardFileEntity();
             for (MultipartFile boardFile : boardDto.getBoardFile()) { // 1. DTO에 담긴 파일을 꺼냄
 
                 String originalFilename = boardFile.getOriginalFilename(); // 2. 파일의 이름을 가져옴
+                // 유저 id도 저장하여 100% 겹치지 않은 파일
                 String storedFilename = System.currentTimeMillis() + "_" + originalFilename; // 3. 서버 저장용 이름을 만든다. // 내사진.jpg => 8826371246_내사진.jpg
                 String savePath = "C:/Users/user/Desktop/SpringBoot/image/" + storedFilename; // 4. 저장 경로 설정
                 boardFile.transferTo(new File(savePath)); // 5. 해당 경로에 파일 저장
-                BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(board, originalFilename, storedFilename); // 6. board_table에 해당 데이터 save 처리
+                BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(board.get(), originalFilename, storedFilename); // 6. board_table에 해당 데이터 save 처리
                 fileSave = boardFileRepository.save(boardFileEntity);// 7. board_file_table에 해당 데이터 save 처리
             }
             if (fileSave != null) {
@@ -94,7 +98,7 @@ public class BoardService {
      */
     @Transactional
     public List<BoardDto> findAll() {
-        List<BoardEntity> boardEntityList = boardRepository.findAll();
+        List<BoardEntity> boardEntityList = boardRepository.findAllByOrderByIdDesc();
         List<BoardDto> boardDtoList = new ArrayList<>();
 
         for (BoardEntity boardEntity : boardEntityList) {
@@ -130,12 +134,32 @@ public class BoardService {
     /*
         게시글 수정
      */
-    public BoardDto update(BoardDto boardDto) {
+    @Transactional
+    public Long update(BoardDto boardDto, Long id) throws IOException {
+        Integer update = boardRepository.updateBoard(id, boardDto.getBoardTitle(), boardDto.getBoardContents(), LocalDateTime.now());
+        if (update != null) {
 
-        BoardEntity boardEntity = BoardEntity.toUpdateEntity(boardDto);
-        boardRepository.save(boardEntity);
+            Optional<BoardEntity> boardEntity = boardRepository.findById(id);
+            if (!boardDto.getBoardFile().isEmpty() && boardDto.getBoardFile().get(0).getSize() > 0) {
+                for (MultipartFile boardFile : boardDto.getBoardFile()) { // 1. DTO에 담긴 파일을 꺼냄
 
-        return findById(boardDto.getId());
+                    String originalFilename = boardFile.getOriginalFilename(); // 2. 파일의 이름을 가져옴
+                    // 유저 id도 저장하여 100% 겹치지 않은 파일
+                    String storedFilename = System.currentTimeMillis() + "_" + originalFilename; // 3. 서버 저장용 이름을 만든다. // 내사진.jpg => 8826371246_내사진.jpg
+                    String savePath = "C:/Users/user/Desktop/SpringBoot/image/" + storedFilename; // 4. 저장 경로 설정
+                    boardFile.transferTo(new File(savePath)); // 5. 해당 경로에 파일 저장
+                    BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(boardEntity.get(), originalFilename, storedFilename); // 6. board_table에 해당 데이터 save 처리
+                    BoardFileEntity fileSave = boardFileRepository.save(boardFileEntity);// 7. board_file_table에 해당 데이터 save 처리
+                    if (fileSave != null) {
+                        return 1L;
+                    } else
+                        return 0L;
+                }
+            }
+            return 1L;
+        } else
+            return 0L;
+
     }
 
     public void deleteById(Long id) {
@@ -159,6 +183,7 @@ public class BoardService {
     /*
         광역시 기준으로 게시판 조회
      */
+    @Transactional
     public List<BoardDto> findByProvince(Long provinceId) {
         List<BoardDto> boardDtoList = new ArrayList<>();
         List<BoardEntity> boardEntityList = boardRepository.findAllByProvinceIdOrderByIdDesc(provinceId);
@@ -173,6 +198,7 @@ public class BoardService {
     /*
         지역구 기준으로 게시판 조회
      */
+    @Transactional
     public List<BoardDto> findByDistrict(Long districtId) {
         List<BoardDto> boardDtoList = new ArrayList<>();
         List<BoardEntity> boardEntityList = boardRepository.findAllByDistrictIdOrderByIdDesc(districtId);
@@ -182,5 +208,10 @@ public class BoardService {
         }
         return boardDtoList;
 
+    }
+
+    @Transactional
+    public void deleteFiles(String deleteFile) {
+        boardFileRepository.deleteByStoredFileName(deleteFile);
     }
 }

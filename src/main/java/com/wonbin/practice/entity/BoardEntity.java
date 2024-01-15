@@ -94,19 +94,4 @@ public class BoardEntity extends BaseEntity {
                 .build();
         return boardEntity;
     }
-
-    public static BoardEntity toUpdateEntity(BoardDto boardDto) {
-        BoardEntity boardEntity = BoardEntity.builder()
-                .id(boardDto.getId())
-                .boardWriter(boardDto.getBoardWriter())
-                .boardTitle(boardDto.getBoardTitle())
-                .boardContents(boardDto.getBoardContents())
-                .provinceId(boardDto.getProvinceId())
-                .provinceName(boardDto.getProvinceName())
-                .districtId(boardDto.getDistrictId())
-                .districtName(boardDto.getDistrictName())
-                .boardHits(boardDto.getBoardHits())
-                .build();
-        return boardEntity;
-    }
 }

@@ -1,0 +1,130 @@
+<!-- post_form.html -->
+
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>게시글 작성</title>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Custom CSS -->
+    <style>
+        .container {
+            max-width: 600px;
+            margin-top: 50px;
+        }
+
+        #postForm {
+            margin-top: 20px;
+        }
+
+        #submitBtn {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<div id="headerContainer" th:replace="~{fragments/header :: header}"></div>
+<main>
+    <div class="container">
+        <h2>게시글 작성</h2>
+
+        <form id="postForm" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="writer">작성자</label>
+                <input th:value="${board.boardWriter}" type="text" class="form-control" id="writer" name="boardWriter"
+                       readonly>
+            </div>
+
+            <div class="form-group">
+                <label for="title">제목</label>
+                <input th:value="${board.boardTitle}" type="text" class="form-control" id="title" name="boardTitle"
+                       placeholder="제목을 입력하세요" required>
+            </div>
+
+            <div class="form-group">
+                <label for="content">내용</label>
+                <textarea th:text="${board.boardContents}" class="form-control" id="content" rows="5"
+                          name="boardContents" placeholder="내용을 입력하세요"
+                          required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="file">파일 첨부</label>
+                <input type="file" class="form-control-file" id="file" name="boardFile" multiple="multiple">
+            </div>
+            <!-- 이미지 미리보기 -->
+            <div id="imageContainer">
+                <div th:if="${board.fileAttached == 1}">
+                    <div th:each="image, status : ${board.storedFileName}">
+                        <img th:src="@{|/upload/${image}|}" alt="게시글 이미지" width="100" height="100"/>
+                        <button type="button" th:attr="onclick=|deleteImage('${image}', '${status.index}')|">이미지 삭제
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <!-- 이미지 삭제를 위한 hidden input -->
+            <input type="hidden" id="deletedImages" name="deletedImages">
+
+            <button id="submitBtn" type="submit" class="btn btn-primary">게시글 수정</button>
+        </form>
+    </div>
+</main>
+<div id="footerContainer" th:replace="~{fragments/footer :: footer}"></div>
+
+<!-- 저장된 이미지 목록을 삭제하는 스크립트 -->
+<script th:inline="javascript">
+    $(document).ready(function () {
+        $("#postForm").submit(function (event) {
+            event.preventDefault();
+
+            const formData = new FormData(this);
+            const id = [[${board.id}]];
+            $.ajax({
+                type: "POST",
+                url: "/board/update/" + id,
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    alert(response);
+
+                    if (response === "게시글 수정 성공") {
+                        window.location.href = "/board/" + id;
+                    }
+                },
+                error: function (error) {
+                    console.error("Ajax 요청 실패:", error);
+                }
+            });
+        });
+    });
+
+    const deletedImages = [];
+
+    function deleteImage(deleteFile, index) {
+        deletedImages.push(deleteFile);
+        document.getElementById('deletedImages').value = deletedImages.join(',');
+        // 화면에서 삭제된 이미지를 감추거나 제거하는 로직 추가
+        $.ajax({
+            type: 'POST',
+            url: '/board/delete/file',
+            data: {deleteFile: deleteFile},
+            success: function (data) {
+                alert(data);
+                const container = $('#imageContainer');
+                const imageHide = container.find('div').eq(index);
+                console.log(index);
+                imageHide.hide();
+            },
+            error: function (error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+</script>
+</body>
+</html>
