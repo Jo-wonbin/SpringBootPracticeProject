@@ -21,22 +21,28 @@ public class MemberEntity {
     @Column(unique = true)
     private String memberEmail;
 
-    @Column
+    @Column(nullable = false)
     private String memberPassword;
 
     @Column
     private String memberName;
 
     @Column
+    private Long provinceId;
+
+    @Column
     private String provinceName;
+
+    @Column
+    private Long districtId;
 
     @Column
     private String districtName;
 
-    @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<BoardEntity> boardEntityList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<CommentEntity> commentEntityList = new ArrayList<>();
 
     public static MemberEntity toMemberEntity(MemberDto memberDto) {
@@ -46,6 +52,8 @@ public class MemberEntity {
         memberEntity.setMemberName(memberDto.getMemberName());
         memberEntity.setProvinceName(memberDto.getProvinceName());
         memberEntity.setDistrictName(memberDto.getDistrictName());
+        memberEntity.setProvinceId(memberDto.getProvinceId());
+        memberEntity.setDistrictId(memberDto.getDistrictId());
 
         return memberEntity;
     }
@@ -58,6 +66,8 @@ public class MemberEntity {
         memberEntity.setMemberName(memberDto.getMemberName());
         memberEntity.setProvinceName(memberDto.getProvinceName());
         memberEntity.setDistrictName(memberDto.getDistrictName());
+        memberEntity.setProvinceId(memberDto.getProvinceId());
+        memberEntity.setDistrictId(memberDto.getDistrictId());
 
         return memberEntity;
     }

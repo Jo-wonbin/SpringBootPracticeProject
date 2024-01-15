@@ -3,6 +3,8 @@ package com.wonbin.practice.entity;
 import com.wonbin.practice.dto.BoardDto;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,13 +38,20 @@ public class BoardEntity extends BaseEntity {
     private Long provinceId;
 
     @Column
+    private String provinceName;
+
+    @Column
     private Long districtId;
+
+    @Column
+    private String districtName;
 
     @Column
     private int fileAttached; // 1 or 0
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "member_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private MemberEntity memberEntity;
 
     @OneToMany(mappedBy = "boardEntity", cascade = CascadeType.REMOVE, orphanRemoval = true, fetch = FetchType.LAZY)
@@ -62,7 +71,9 @@ public class BoardEntity extends BaseEntity {
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
                 .provinceId(boardDto.getProvinceId())
+                .provinceName(boardDto.getProvinceName())
                 .districtId(boardDto.getDistrictId())
+                .districtName(boardDto.getDistrictName())
                 .boardHits(0)
                 .fileAttached(0) // 파일 없음.
                 .build();
@@ -75,7 +86,9 @@ public class BoardEntity extends BaseEntity {
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
                 .provinceId(boardDto.getProvinceId())
+                .provinceName(boardDto.getProvinceName())
                 .districtId(boardDto.getDistrictId())
+                .districtName(boardDto.getDistrictName())
                 .boardHits(0)
                 .fileAttached(1)
                 .build();
@@ -88,6 +101,10 @@ public class BoardEntity extends BaseEntity {
                 .boardWriter(boardDto.getBoardWriter())
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
+                .provinceId(boardDto.getProvinceId())
+                .provinceName(boardDto.getProvinceName())
+                .districtId(boardDto.getDistrictId())
+                .districtName(boardDto.getDistrictName())
                 .boardHits(boardDto.getBoardHits())
                 .build();
         return boardEntity;

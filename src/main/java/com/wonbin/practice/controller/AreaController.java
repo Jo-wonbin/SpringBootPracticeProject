@@ -9,7 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -33,9 +33,9 @@ public class AreaController {
         }
     }
 
-    @GetMapping("/district")
-    public ResponseEntity findDistrict(@RequestParam("provinceName") String provinceName) {
-        List<DistrictDto> districtDtoList = districtService.findByProvinceName(provinceName);
+    @GetMapping("/district/{id}")
+    public ResponseEntity findDistrict(@PathVariable Long id) {
+        List<DistrictDto> districtDtoList = districtService.findByProvinceId(id);
 
         if (districtDtoList != null) {
             return new ResponseEntity<>(districtDtoList, HttpStatus.OK);

@@ -78,7 +78,7 @@ function loadProvinces() {
         // 서버에서 받은 배열을 순회하면서 옵션을 추가
         console.log(data);
         data.forEach(function (province) {
-            provinceSelect.append('<option  value="' + province.name + '">' + province.name + '</option>');
+            provinceSelect.append('<option  value="' + province.id + '">' + province.name + '</option>');
         });
     });
 }
@@ -92,11 +92,11 @@ function updateDistricts() {
     districtSelect.empty();
 
     // Ajax를 통해 서버에서 데이터 동적으로 불러오기
-    $.get('/area/district', {provinceName: province}, function (data) {
+    $.get('/area/district/'+province, function (data) {
         // 새로운 옵션 추가
         console.log(data);
         data.forEach(function (districts) {
-            districtSelect.append('<option value="' + districts.name + '">' + districts.name + '</option>');
+            districtSelect.append('<option value="' + districts.id + '">' + districts.name + '</option>');
         });
     });
 }

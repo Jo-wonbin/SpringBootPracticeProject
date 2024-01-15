@@ -32,7 +32,7 @@ public class DistrictService {
                     districtDtoList.add(DistrictDto.toDistrictDto(districtEntity));
                 }
                 return districtDtoList;
-            }else{
+            } else {
                 return null;
             }
         } else {
@@ -40,4 +40,16 @@ public class DistrictService {
         }
     }
 
+    public List<DistrictDto> findByProvinceId(Long provinceId) {
+        Optional<ProvinceEntity> optionalProvinceEntity = provinceRepository.findById(provinceId);
+        if (optionalProvinceEntity.isPresent()) {
+            List<DistrictEntity> districtEntityList = districtRepository.findAllByProvinceEntity(optionalProvinceEntity.get());
+            List<DistrictDto> districtDtoList = new ArrayList<>();
+            for (DistrictEntity districtEntity : districtEntityList) {
+                districtDtoList.add(DistrictDto.toDistrictDto(districtEntity));
+            }
+            return districtDtoList;
+        } else
+            return null;
+    }
 }
