@@ -142,15 +142,22 @@ public class BoardController {
     @PostMapping("/delete/file")
     public ResponseEntity deleteFiles(@RequestParam("deleteFile") String deleteFile) {
         System.out.println("deleteFile = " + deleteFile);
-        boardService.deleteFiles(deleteFile);
-        return new ResponseEntity<>("파일 삭제 성공", HttpStatus.OK);
+        boolean success = boardService.deleteFiles(deleteFile);
+        if (success)
+            return new ResponseEntity<>("파일 삭제 성공", HttpStatus.OK);
+        else
+            return new ResponseEntity<>("파일 삭제 실패", HttpStatus.BAD_REQUEST);
     }
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        boardService.deleteById(id);
-        return "redirect:/board/";
+    public ResponseEntity delete(@PathVariable Long id) {
+        Long delete = boardService.deleteById(id);
+        if(delete == 1L){
+            return new ResponseEntity<>("게시글 삭제 성공", HttpStatus.OK);
+        }else {
+            return new ResponseEntity<>("게시글 삭제 실패", HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Operation(summary = "게시글 페이징", description = "게시글을 페이징합니다.")

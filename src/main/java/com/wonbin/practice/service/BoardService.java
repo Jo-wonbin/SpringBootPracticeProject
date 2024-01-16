@@ -14,6 +14,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,6 +35,8 @@ public class BoardService {
     private final MemberRepository memberRepository;
     private final ProvinceRepository provinceRepository;
     private final DistrictRepository districtRepository;
+
+    private final String savePath = "C:/Users/user/Desktop/SpringBoot/image/";
 
     public Long save(BoardDto boardDto, String email) throws IOException {
         /*
@@ -139,22 +144,23 @@ public class BoardService {
         Integer update = boardRepository.updateBoard(id, boardDto.getBoardTitle(), boardDto.getBoardContents(), LocalDateTime.now());
         if (update != null) {
 
-            Optional<BoardEntity> boardEntity = boardRepository.findById(id);
-            if (!boardDto.getBoardFile().isEmpty() && boardDto.getBoardFile().get(0).getSize() > 0) {
-                for (MultipartFile boardFile : boardDto.getBoardFile()) { // 1. DTO에 담긴 파일을 꺼냄
+            Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(id);
+            if (optionalBoardEntity.isPresent()) {
+                BoardEntity boardEntity = optionalBoardEntity.get();
+                if (!boardDto.getBoardFile().isEmpty() && boardDto.getBoardFile().get(0).getSize() > 0) {
+                    for (MultipartFile boardFile : boardDto.getBoardFile()) { // 1. DTO에 담긴 파일을 꺼냄
 
-                    String originalFilename = boardFile.getOriginalFilename(); // 2. 파일의 이름을 가져옴
-                    // 유저 id도 저장하여 100% 겹치지 않은 파일
-                    String storedFilename = System.currentTimeMillis() + "_" + originalFilename; // 3. 서버 저장용 이름을 만든다. // 내사진.jpg => 8826371246_내사진.jpg
-                    String savePath = "C:/Users/user/Desktop/SpringBoot/image/" + storedFilename; // 4. 저장 경로 설정
-                    boardFile.transferTo(new File(savePath)); // 5. 해당 경로에 파일 저장
-                    BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(boardEntity.get(), originalFilename, storedFilename); // 6. board_table에 해당 데이터 save 처리
-                    BoardFileEntity fileSave = boardFileRepository.save(boardFileEntity);// 7. board_file_table에 해당 데이터 save 처리
-                    if (fileSave != null) {
-                        return 1L;
-                    } else
-                        return 0L;
+                        String originalFilename = boardFile.getOriginalFilename(); // 2. 파일의 이름을 가져옴
+                        // 유저 id도 저장하여 100% 겹치지 않은 파일
+                        String storedFilename = System.currentTimeMillis() + "_" + originalFilename; // 3. 서버 저장용 이름을 만든다. // 내사진.jpg => 8826371246_내사진.jpg
+                        String savePath = "C:/Users/user/Desktop/SpringBoot/image/" + storedFilename; // 4. 저장 경로 설정
+                        boardFile.transferTo(new File(savePath)); // 5. 해당 경로에 파일 저장
+                        BoardFileEntity boardFileEntity = BoardFileEntity.toBoardFileEntity(boardEntity, originalFilename, storedFilename); // 6. board_table에 해당 데이터 save 처리
+                        boardFileRepository.save(boardFileEntity);// 7. board_file_table에 해당 데이터 save 처리
+                    }
                 }
+            } else {
+                return 0L;
             }
             return 1L;
         } else
@@ -162,8 +168,13 @@ public class BoardService {
 
     }
 
-    public void deleteById(Long id) {
-        boardRepository.deleteById(id);
+    public Long deleteById(Long id) {
+        try {
+            boardRepository.deleteById(id);
+            return 1L;
+        } catch (Exception e) {
+            return 0L;
+        }
     }
 
     public Page<BoardDto> paging(Pageable pageable) {
@@ -211,7 +222,15 @@ public class BoardService {
     }
 
     @Transactional
-    public void deleteFiles(String deleteFile) {
-        boardFileRepository.deleteByStoredFileName(deleteFile);
+    public boolean deleteFiles(String deleteFile) {
+        Path path = FileSystems.getDefault().getPath(savePath + deleteFile);
+        try {
+            Files.delete(path);
+            boardFileRepository.deleteByStoredFileName(deleteFile);
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
