@@ -52,6 +52,7 @@ public class BoardService {
             Optional<ProvinceEntity> optionalProvinceEntity = provinceRepository.findById(memberEntity.getProvinceId());
             ProvinceEntity provinceEntity = optionalProvinceEntity.get();
 
+            boardDto.setMemberEmail(memberEntity.getMemberEmail());
             boardDto.setBoardWriter(memberEntity.getMemberName()); // 2
             boardDto.setProvinceId(provinceEntity.getId());
             boardDto.setProvinceName(provinceEntity.getName()); // 3
