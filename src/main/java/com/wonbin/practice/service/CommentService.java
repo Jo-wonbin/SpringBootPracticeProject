@@ -7,6 +7,7 @@ import com.wonbin.practice.entity.MemberEntity;
 import com.wonbin.practice.repository.BoardRepository;
 import com.wonbin.practice.repository.CommentRepository;
 import com.wonbin.practice.repository.MemberRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,13 +32,14 @@ public class CommentService {
             if (optionalBoardEntity.isPresent()) {
                 BoardEntity boardEntity = optionalBoardEntity.get();
                 commentDto.setCommentWriter(memberEntity.getMemberName());
+                commentDto.setMemberEmail(memberEntity.getMemberEmail());
                 CommentEntity commentEntity = CommentEntity.toSaveComment(commentDto, boardEntity, memberEntity);
                 return commentRepository.save(commentEntity).getId();
             } else {
-                return null;
+                return 0L;
             }
         } else
-            return null;
+            return -1L;
     }
 
     public List<CommentDto> findAll(Long boardId) {
@@ -65,15 +67,26 @@ public class CommentService {
 
     }
 
-    public Long update(CommentDto commentDto) {
-        Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(commentDto.getBoardId());
+    @Transactional
+    public Long update(CommentDto commentDto, Long boardId, String email) {
+        Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(boardId);
         if (optionalBoardEntity.isPresent()) {
             BoardEntity boardEntity = optionalBoardEntity.get();
+            commentDto.setMemberEmail(email);
             CommentEntity commentEntity = CommentEntity.toUpdateComment(commentDto, boardEntity);
 
             return commentRepository.save(commentEntity).getId();
         } else {
             return null;
         }
+    }
+
+    public CommentDto findById(Long commentId) {
+        Optional<CommentEntity> optionalCommentEntity = commentRepository.findById(commentId);
+        if (optionalCommentEntity.isPresent()) {
+            CommentDto commentDto = CommentDto.toCommentDto(optionalCommentEntity.get());
+            return commentDto;
+        } else
+            return null;
     }
 }

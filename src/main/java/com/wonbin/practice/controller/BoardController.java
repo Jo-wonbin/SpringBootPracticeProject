@@ -1,9 +1,9 @@
 package com.wonbin.practice.controller;
 
 import com.wonbin.practice.dto.BoardDto;
-import com.wonbin.practice.dto.CommentDto;
+import com.wonbin.practice.dto.MemberDto;
 import com.wonbin.practice.service.BoardService;
-import com.wonbin.practice.service.CommentService;
+import com.wonbin.practice.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
@@ -27,7 +27,7 @@ import java.util.List;
 public class BoardController {
 
     private final BoardService boardService;
-    private final CommentService commentService;
+    private final MemberService memberService;
 
     @GetMapping("/boardWrite")
     public String goToBoardWriteForm(HttpSession session) {
@@ -119,38 +119,68 @@ public class BoardController {
          */
     @Operation(summary = "게시글 수정 창 이동", description = "게시글을 수정하기 위한 창으로 이동합니다.")
     @GetMapping("/update/{id}")
-    public String updateForm(@PathVariable Long id, Model model) {
-
-        BoardDto boardDto = boardService.findById(id);
-        System.out.println(boardDto.toString());
-        model.addAttribute("board", boardDto);
-        return "boardUpdate";
+    public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+        String email = (String) session.getAttribute("loginEmail");
+        MemberDto memberDto = memberService.findByMemberEmail(email);
+        if (memberDto != null) {
+            BoardDto boardDto = boardService.findById(id);
+            System.out.println(boardDto.toString());
+            model.addAttribute("board", boardDto);
+            return "boardUpdate";
+        } else {
+            return "redirect:/board/" + id;
+        }
     }
 
     @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
     @PostMapping("/update/{id}")
-    public ResponseEntity update(@PathVariable Long id, @ModelAttribute BoardDto boardDto) throws IOException {
-        Long update = boardService.update(boardDto, id);
+    public ResponseEntity update(@PathVariable Long id, @ModelAttribute BoardDto boardDto, HttpSession session) throws IOException {
+        String email = (String) session.getAttribute("loginEmail");
+        MemberDto memberDto = memberService.findByMemberEmail(email);
+        if (memberDto != null) {
+            Long update = boardService.update(boardDto, id);
 
-        if (update == 1L) {
-            return new ResponseEntity<>("게시글 수정 성공", HttpStatus.OK);
+            if (update == 1L) {
+                return new ResponseEntity<>("게시글 수정 성공", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("게시글 수정 실패", HttpStatus.BAD_REQUEST);
+            }
         } else {
-            return new ResponseEntity<>("게시글 수정 실패", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
         }
     }
 
     @PostMapping("/delete/file")
-    public ResponseEntity deleteFiles(@RequestParam("deleteFile") String deleteFile) {
+    public ResponseEntity deleteFiles(@RequestParam("deleteFile") String deleteFile, HttpSession session) {
         System.out.println("deleteFile = " + deleteFile);
-        boardService.deleteFiles(deleteFile);
-        return new ResponseEntity<>("파일 삭제 성공", HttpStatus.OK);
+        String email = (String) session.getAttribute("loginEmail");
+        MemberDto memberDto = memberService.findByMemberEmail(email);
+        if (memberDto != null) {
+            boolean success = boardService.deleteFiles(deleteFile);
+            if (success)
+                return new ResponseEntity<>("파일 삭제 성공", HttpStatus.OK);
+            else
+                return new ResponseEntity<>("파일 삭제 실패", HttpStatus.BAD_REQUEST);
+        } else {
+            return new ResponseEntity<>("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
     @GetMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
-        boardService.deleteById(id);
-        return "redirect:/board/";
+    public ResponseEntity delete(@PathVariable Long id, HttpSession session) {
+        String email = (String) session.getAttribute("loginEmail");
+        MemberDto memberDto = memberService.findByMemberEmail(email);
+        if (memberDto != null) {
+            Long delete = boardService.deleteById(id);
+            if (delete == 1L) {
+                return new ResponseEntity<>("게시글 삭제 성공", HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("게시글 삭제 실패", HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            return new ResponseEntity<>("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
+        }
     }
 
     @Operation(summary = "게시글 페이징", description = "게시글을 페이징합니다.")

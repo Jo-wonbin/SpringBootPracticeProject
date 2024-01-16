@@ -22,6 +22,9 @@ public class BoardEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column
+    private String memberEmail;
+
     @Column(length = 20, nullable = false)
     private String boardWriter;
 
@@ -68,6 +71,7 @@ public class BoardEntity extends BaseEntity {
     public static BoardEntity toSaveEntity(BoardDto boardDto) {
         BoardEntity boardEntity = BoardEntity.builder()
                 .boardWriter(boardDto.getBoardWriter())
+                .memberEmail(boardDto.getMemberEmail())
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
                 .provinceId(boardDto.getProvinceId())
@@ -83,6 +87,7 @@ public class BoardEntity extends BaseEntity {
     public static BoardEntity toSaveFileEntity(BoardDto boardDto) {
         BoardEntity boardEntity = BoardEntity.builder()
                 .boardWriter(boardDto.getBoardWriter())
+                .memberEmail(boardDto.getMemberEmail())
                 .boardTitle(boardDto.getBoardTitle())
                 .boardContents(boardDto.getBoardContents())
                 .provinceId(boardDto.getProvinceId())

@@ -14,6 +14,16 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" th:href="@{/css/boardDetail.css}">
     <title>게시글 상세 조회</title>
+    <style>
+        .comment-content {
+            /* 댓글 내용 스타일 지정 */
+        }
+
+        .comment-buttons {
+            float: right;
+            /* 수정 및 삭제 버튼 스타일 지정 */
+        }
+    </style>
 </head>
 <body>
 
@@ -25,7 +35,8 @@
     <h2 th:text="${board.boardTitle}">게시글 제목</h2>
     <p>작성자: <span th:text="${board.boardWriter}">작성자명</span></p>
     <p>조회수: <span th:text="${board.boardHits}">0</span></p>
-    <!--    <p>작성 시간: <span th:text="${#dates.format(board.boardCreatedTime, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</span></p>-->
+    <p>작성 시간: <span
+            th:text="${#temporals.format(board.boardCreatedTime, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 12:00:00</span></p>
     <p>광역시: <span th:text="${board.provinceId}">서울시</span></p>
     <p>지역구: <span th:text="${board.districtId}">강남구</span></p>
     <div>
@@ -42,17 +53,17 @@
     <button type="button" onclick="listReq()">게시글 목록</button>
 
     <!-- 게시글 수정 페이지로 이동하는 버튼 -->
-    <button type="button" onclick="updateReq()">게시글 수정</button>
+    <button th:if="${board.memberEmail} == ${session.loginEmail}" type="button" onclick="updateReq()">게시글 수정</button>
 
     <!-- 게시글 삭제 -->
-    <button type="button" onclick="deleteReq()">게시글 삭제</button>
+    <button th:if="${board.memberEmail} == ${session.loginEmail}" type="button" onclick="deleteReq()">게시글 삭제</button>
     <!-- 댓글 작성 폼 -->
     <div id="commentForm">
         <h3>댓글 작성</h3>
         <form id="addCommentForm">
             <label for="comment">댓글 내용:</label>
             <textarea id="comment" name="commentContents" required></textarea>
-            <button type="submit">댓글 작성</button>
+            <button type="submit" id="commentWrite">댓글 작성</button>
         </form>
     </div>
     <!-- 댓글 목록 -->
@@ -69,7 +80,7 @@
 <div th:replace="~{fragments/footer :: footer}"></div>
 
 <!-- Ajax를 사용하여 댓글 목록과 댓글 작성 기능 추가 -->
-<script>
+<script th:inline="javascript">
     // 페이지 로딩 시 댓글 목록 불러오기
     $(document).ready(function () {
         loadComments([[${board.id}]]);
@@ -86,9 +97,18 @@
     const deleteReq = () => {
         console.log("삭제 요청");
         const id = [[${board.id}]];
-        location.href = '/board/delete/' + id;
+        $.get('/board/delete/' + id, function (data) {
+            if (data === "게시글 삭제 성공") {
+                alert("삭제하였습니다.");
+                window.location.href = '/board';
+            } else {
+                alert("삭제에 실패하였습니다.");
+            }
+        });
     }
-
+    /*<![CDATA[*/
+    const loginEmail = /*[[${session.loginEmail}]]*/ 'default';  // 세션에서 가져온 이메일 정보
+    /*]]>*/
     // 댓글 목록 불러오기
     function loadComments(boardId) {
         $.ajax({
@@ -101,14 +121,47 @@
                     commentsList.empty();
                     comments.forEach(function (comment) {
                         let commentItem = $('<li>');
+                        // 댓글 내용
                         commentItem.append('<p>작성자: ' + comment.commentWriter + '</p>');
                         commentItem.append('<p>' + comment.commentContents + '</p>');
-                        commentItem.append('<p>' + comment.commentCreatedTime + '</p>');
+                        // 댓글 작성 시간 포맷 변경 (예: 2024-01-01 12:00:00)
+                        const formattedTime = new Date(comment.commentCreatedTime).toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'});
+                        commentItem.append('<p>' + formattedTime + '</p>');
 
+                        // 수정 및 삭제 버튼
+                        if (comment.memberEmail === loginEmail) {
+                            commentItem.append('<button type="button" onclick="updateComment(' + comment.id + ')">수정</button>');
+                            commentItem.append('<button type="button" onclick="deleteComment(' + comment.id + ", " + boardId + ')">삭제</button>');
+                        }
                         commentsList.append(commentItem);
                     });
                 }
             }
+        });
+    }
+
+    let currentCommentId = null;
+    let currentComment = null;
+
+    // 댓글 수정
+    function updateComment(commentId) {
+        // 수정 로직 구현
+        $.get('/comment/read/' + commentId, function (data) {
+            currentCommentId = commentId;
+            currentComment = data;
+            // 폼에 데이터 적용
+            $("#comment").val(currentComment.commentContents);
+            $("#commentWrite").text("댓글 수정");
+        });
+    }
+
+    // 댓글 삭제
+    function deleteComment(commentId, boardId) {
+        // 삭제 로직 구현
+        $.get('/comment/delete/' + commentId, function (data) {
+            // 폼에 데이터 적용
+            alert(data);
+            loadComments(boardId);
         });
     }
 
@@ -117,22 +170,55 @@
         event.preventDefault();
         const boardId = [[${board.id}]];
         const formData = $(this).serialize();
-        $.ajax({
-            url: "/comment/save/" + boardId,
-            type: "POST",
-            data: formData,
-            success: function (data) {
-                // 댓글 작성 후 댓글 목록 다시 불러오기
-                if (data === 1) {
-                    loadComments(boardId);
-                    // 작성 폼 초기화
-                    $("#comment").val("");
+        const flag = $("#commentWrite").text();
+        if (flag === "댓글 작성") {
+            $.ajax({
+                url: "/comment/save/" + boardId,
+                type: "POST",
+                data: formData,
+                success: function (data, textStatus, xhr) {
+                    // 댓글 작성 후 댓글 목록 다시 불러오기
+                    if (data === 1) {
+                        alert("댓글 작성 성공");
+                        loadComments(boardId);
+                        // 작성 폼 초기화
+                        $("#comment").val("");
+                    } else if (xhr.status == 401) {
+                        alert("로그인이 필요합니다.");
+                    } else {
+                        alert("댓글 저장 실패");
+                    }
+                },
+                error: function (data, status, error) {
+                    alert("댓글 저장 실패");
+                    window.location.href = "/member/login";
                 }
-            },
-            error: function (data) {
-                alert(data);
-            }
-        });
+            });
+
+        } else {
+            currentComment.commentContents = $("#comment").val();
+            $.post("/comment/update/" + boardId,
+                {
+                    id: currentCommentId,
+                    commentContents: currentComment.commentContents,
+                    commentCreatedTime: null,
+                    commentWriter: currentComment.commentWriter,
+                    boardId: boardId
+                }, function (data, textStatus, xhr) {
+                    if (xhr.status === 200) {
+
+                        alert(data);
+                        loadComments(boardId);
+                        // 작성 폼 초기화
+                        $("#comment").val("");
+                        $("#commentWrite").text("댓글 작성");
+                    } else if (xhr.status === 401) {
+                        alert("로그인이 필요합니다.");
+                    } else {
+                        alert("댓글 업데이트 실패");
+                    }
+                });
+        }
     });
 </script>
 </body>
