@@ -20,6 +20,7 @@ public class BoardDto {
 
     private Long id;
     private String boardWriter;
+    private String memberEmail;
     private String boardTitle;
     private String boardContents;
     private int boardHits;
@@ -30,7 +31,7 @@ public class BoardDto {
     private LocalDateTime boardCreatedTime;
     private LocalDateTime boardUpdatedTime;
 
-    private List<MultipartFile> boardFile; // 파일 받아오는 용도 save.html -> Controller 파일 담는 용도
+    private List<MultipartFile> boardFile; // 파일 받아오는 용도
     private List<String> originalFileName; // 원본 파일 이름
     private List<String> storedFileName; // 서버 저장용 파일 이름
     private int fileAttached; // 파일 첨부 여부(첨부 1, 미첨부 0)
@@ -46,6 +47,7 @@ public class BoardDto {
     public static BoardDto toBoardDTO(BoardEntity boardEntity) {
         BoardDto boardDto = new BoardDto();
         boardDto.setId(boardEntity.getId());
+        boardDto.setMemberEmail(boardEntity.getMemberEmail());
         boardDto.setBoardWriter(boardEntity.getBoardWriter());
         boardDto.setBoardContents(boardEntity.getBoardContents());
         boardDto.setBoardTitle(boardEntity.getBoardTitle());

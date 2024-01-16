@@ -28,6 +28,8 @@ public class CommentEntity {
     @Column(length = 300)
     private String commentContents;
 
+    @Column
+    private String memberEmail;
     /*
         board : comment = 1:N
     */
@@ -51,6 +53,7 @@ public class CommentEntity {
                 .commentWriter(commentDto.getCommentWriter())
                 .commentContents(commentDto.getCommentContents())
                 .boardEntity(boardEntity)
+                .memberEmail(commentDto.getMemberEmail())
                 .memberEntity(memberEntity)
                 .build();
         return commentEntity;
@@ -63,6 +66,7 @@ public class CommentEntity {
                 .commentWriter(commentDto.getCommentWriter())
                 .commentContents(commentDto.getCommentContents())
                 .boardEntity(boardEntity)
+                .memberEmail(commentDto.getMemberEmail())
                 .commentCreatedTime(LocalDateTime.now())
                 .build();
         return commentEntity;
