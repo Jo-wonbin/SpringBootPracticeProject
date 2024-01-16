@@ -103,22 +103,20 @@
         });
     });
 
-    const deletedImages = [];
-
     function deleteImage(deleteFile, index) {
-        deletedImages.push(deleteFile);
-        document.getElementById('deletedImages').value = deletedImages.join(',');
         // 화면에서 삭제된 이미지를 감추거나 제거하는 로직 추가
+        const container = $('#imageContainer');
+        const imageHide = container.find('div div').eq(index);
+        console.log(deleteFile);
+        console.log(index);
+        imageHide.hide();
+
         $.ajax({
             type: 'POST',
             url: '/board/delete/file',
             data: {deleteFile: deleteFile},
             success: function (data) {
                 alert(data);
-                const container = $('#imageContainer');
-                const imageHide = container.find('div').eq(index);
-                console.log(index);
-                imageHide.hide();
             },
             error: function (error) {
                 console.error('Error:', error);
