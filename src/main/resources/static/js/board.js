@@ -50,12 +50,21 @@ function displayBoardData(data) {
 
     // 받아온 데이터를 이용해 동적으로 테이블 행을 생성하여 추가
     for (const board of data) {
+        const formattedDate = new Date(board.boardCreatedTime).toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+
         const row = `<tr onclick="detailBoard(${board.id})">
                             <td>${board.id}</td>
                             <td>${board.boardTitle}</td>
                             <td>${board.boardWriter}</td>
                             <td>${board.boardHits}</td>
-                            <td>${board.boardCreatedTime}</td>
+                            <td>${formattedDate}</td>
                             <td>${board.provinceName}</td>
                             <td>${board.districtName}</td>
                         </tr>`;
@@ -70,10 +79,10 @@ function updateDistricts() {
 
     // 기존 옵션 제거
     districtSelect.empty();
-    if(province === "zero"){
+    if (province === "zero") {
         districtSelect.append("<option value=" + "zero" + " selected>전체</option>");
         loadBoards(0);
-    }else {
+    } else {
         // Ajax를 통해 서버에서 데이터 동적으로 불러오기
         $.get('/area/district/' + province, function (data) {
             // 새로운 옵션 추가
@@ -113,4 +122,4 @@ function loadProvinces() {
 function boardWrite() {
     console.log("게시글 이동 버튼 클릭");
     location.href = "/board/boardWrite";
-};
+}
