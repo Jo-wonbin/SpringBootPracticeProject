@@ -171,8 +171,19 @@ public class BoardService {
 
     public Long deleteById(Long id) {
         try {
-            boardRepository.deleteById(id);
-            return 1L;
+            Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(id);
+            if (optionalBoardEntity.isPresent()) {
+
+                List<BoardFileEntity> boardFileEntityList = boardFileRepository.findAllByBoardEntity(optionalBoardEntity.get());
+                for (BoardFileEntity boardFileEntity : boardFileEntityList) {
+                    Path path = FileSystems.getDefault().getPath(savePath + boardFileEntity.getStoredFileName());
+                    Files.delete(path);
+                }
+                boardRepository.deleteById(id);
+                return 1L;
+            } else {
+                return 0L;
+            }
         } catch (Exception e) {
             return 0L;
         }
