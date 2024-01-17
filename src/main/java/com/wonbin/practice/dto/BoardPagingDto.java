@@ -8,7 +8,7 @@ import org.springframework.data.domain.Page;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class PagingDto {
+public class BoardPagingDto {
 
     private Page<BoardDto> boardList;
     private int startPage;
