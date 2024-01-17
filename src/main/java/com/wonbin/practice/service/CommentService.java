@@ -9,6 +9,11 @@ import com.wonbin.practice.repository.CommentRepository;
 import com.wonbin.practice.repository.MemberRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -86,6 +91,24 @@ public class CommentService {
         if (optionalCommentEntity.isPresent()) {
             CommentDto commentDto = CommentDto.toCommentDto(optionalCommentEntity.get());
             return commentDto;
+        } else
+            return null;
+    }
+
+    public Page<CommentDto> findAllByPage(Pageable pageable, Long boardId) {
+
+        int page = pageable.getPageNumber() - 1;
+        int pageLimit = 5;
+
+        Optional<BoardEntity> optionalBoardEntity = boardRepository.findById(boardId);
+        if (optionalBoardEntity.isPresent()) {
+            BoardEntity boardEntity = optionalBoardEntity.get();
+            PageRequest pageRequest = PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "id"));
+            Page<CommentEntity> commentEntityPage = commentRepository.findByBoardEntity(boardEntity, pageRequest);
+
+            return commentEntityPage.map(commentEntity -> CommentDto.toChangeCommentDto(
+                    commentEntity, boardId
+            ));
         } else
             return null;
     }

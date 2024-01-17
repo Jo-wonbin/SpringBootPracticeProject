@@ -2,6 +2,9 @@ package com.wonbin.practice.repository;
 
 import com.wonbin.practice.entity.BoardEntity;
 import com.wonbin.practice.entity.CommentEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -17,4 +20,5 @@ public interface CommentRepository extends JpaRepository<CommentEntity, Long> {
     @Query(value = "select c.boardEntity from CommentEntity c where c.id=:id")
     BoardEntity findBoardIdByCommentId(Long id);
 
+    Page<CommentEntity> findByBoardEntity(BoardEntity boardEntity, PageRequest pageRequest);
 }
