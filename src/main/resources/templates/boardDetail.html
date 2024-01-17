@@ -162,7 +162,20 @@
                         </li>`);
         paginationContainer.append(prevButton);
 
-        for (let i = 1; i <= totalPageValue; i++) {
+        let pageStart = Math.max(1, currentPageValue - 2);
+        let pageEnd = Math.min(totalPageValue, currentPageValue + 2);
+
+        // 현재 페이지가 1 또는 2일 경우, pageEnd를 5로 제한
+        if (currentPageValue <= 2) {
+            pageEnd = Math.min(5, totalPageValue);
+        }
+
+        // 현재 페이지와 totalPages의 차이가 0 또는 1일 경우, pageStart를 조정
+        if (totalPageValue - currentPageValue <= 1) {
+            pageStart = Math.max(1, totalPageValue - 4);
+        }
+
+        for (let i = pageStart; i <= pageEnd; i++) {
             const pageButton = $(`<li class="page-item ${currentPageValue === i ? 'active' : ''}">
                                 <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
                             </li>`);
