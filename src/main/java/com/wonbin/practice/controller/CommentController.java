@@ -1,7 +1,7 @@
 package com.wonbin.practice.controller;
 
-import com.wonbin.practice.dto.BoardDto;
 import com.wonbin.practice.dto.CommentDto;
+import com.wonbin.practice.dto.CommentPagingDto;
 import com.wonbin.practice.dto.MemberDto;
 import com.wonbin.practice.service.CommentService;
 import com.wonbin.practice.service.MemberService;
@@ -9,6 +9,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -51,6 +54,28 @@ public class CommentController {
         }
     }
 
+    @GetMapping("/{boardId}/paging")
+    public ResponseEntity findByBoardIdPaging(@PageableDefault(page = 1) Pageable pageable, @PathVariable Long boardId) {
+        try {
+            Page<CommentDto> commentList = commentService.findAllByPage(pageable, boardId);
+            if (commentList != null) {
+                int blockLimit = 5;
+                int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1;
+                int endPage = Math.min(startPage + blockLimit - 1, commentList.getTotalPages());
+                CommentPagingDto commentPagingDto = new CommentPagingDto(commentList, startPage, endPage);
+                if (commentList.hasContent()) {
+                    System.out.println(commentPagingDto.toString());
+                    return new ResponseEntity<>(commentPagingDto, HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>("데이터가 없습니다.", HttpStatus.OK);
+                }
+            } else {
+                return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
     @Operation(summary = "댓글 저장", description = "댓글을 저장합니다.")
     @PostMapping("/save/{boardId}")

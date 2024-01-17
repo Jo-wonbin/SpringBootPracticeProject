@@ -1,17 +1,18 @@
 package com.wonbin.practice.dto;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 import org.springframework.data.domain.Page;
 
 @Getter
 @Setter
-@ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class PagingDto {
+public class CommentPagingDto {
 
-    private Page<BoardDto> boardList;
+    private Page<CommentDto> commentList;
     private int startPage;
     private int endPage;
-
 }

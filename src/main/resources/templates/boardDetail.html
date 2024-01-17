@@ -14,16 +14,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" th:href="@{/css/boardDetail.css}">
     <title>게시글 상세 조회</title>
-    <style>
-        .comment-content {
-            /* 댓글 내용 스타일 지정 */
-        }
-
-        .comment-buttons {
-            float: right;
-            /* 수정 및 삭제 버튼 스타일 지정 */
-        }
-    </style>
 </head>
 <body>
 
@@ -72,6 +62,12 @@
         <ul>
             <!-- 댓글 목록을 동적으로 추가할 부분 -->
         </ul>
+        <!-- 페이징을 위한 부분 추가 -->
+        <div id="commentPagination" class="d-flex justify-content-center text-center mt-4">
+            <ul class="pagination">
+                <!-- 동적으로 추가될 페이징 버튼들은 여기에 표시 -->
+            </ul>
+        </div>
     </div>
 
 </main>
@@ -81,9 +77,12 @@
 
 <!-- Ajax를 사용하여 댓글 목록과 댓글 작성 기능 추가 -->
 <script th:inline="javascript">
+    let currentPageValue = 1;
+    let totalPageValue = 1;
     // 페이지 로딩 시 댓글 목록 불러오기
     $(document).ready(function () {
-        loadComments([[${board.id}]]);
+        const boardId = [[${board.id}]];
+        loadComments(boardId, 1); // 첫 번째 페이지 로딩
     });
     const listReq = () => {
         console.log("목록 요청");
@@ -110,34 +109,87 @@
     const loginEmail = /*[[${session.loginEmail}]]*/ 'default';  // 세션에서 가져온 이메일 정보
     /*]]>*/
     // 댓글 목록 불러오기
-    function loadComments(boardId) {
+    function loadComments(boardId, page) {
         $.ajax({
-            url: "/comment/" + boardId, // 게시글 id 추가
+            url: "/comment/" + boardId + "/paging?page=" + page, // 게시글 id 추가
             type: "GET",
-            success: function (comments) {
+            success: function (response) {
+                console.log(response);
+                const comments = response.commentList.content;
+                currentPageValue = response.commentList.number + 1;
+                totalPageValue = response.commentList.totalPages;
+                console.log(comments);
                 // 댓글 목록을 동적으로 추가하는 로직
-                if (comments !== 1) {
-                    const commentsList = $("#comments ul");
-                    commentsList.empty();
-                    comments.forEach(function (comment) {
-                        let commentItem = $('<li>');
-                        // 댓글 내용
-                        commentItem.append('<p>작성자: ' + comment.commentWriter + '</p>');
-                        commentItem.append('<p>' + comment.commentContents + '</p>');
-                        // 댓글 작성 시간 포맷 변경 (예: 2024-01-01 12:00:00)
-                        const formattedTime = new Date(comment.commentCreatedTime).toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'});
-                        commentItem.append('<p>' + formattedTime + '</p>');
+                const commentsList = $("#comments ul");
+                commentsList.empty();
+                comments.forEach(function (comment) {
+                    let commentItem = $('<li>');
+                    // 댓글 내용
+                    commentItem.append('<p>작성자: ' + comment.commentWriter + '</p>');
+                    commentItem.append('<p>' + comment.commentContents + '</p>');
+                    // 댓글 작성 시간 포맷 변경 (예: 2024-01-01 12:00:00)
+                    const formattedTime = new Date(comment.commentCreatedTime).toLocaleString('ko-KR', {timeZone: 'Asia/Seoul'});
+                    commentItem.append('<p>' + formattedTime + '</p>');
 
-                        // 수정 및 삭제 버튼
-                        if (comment.memberEmail === loginEmail) {
-                            commentItem.append('<button type="button" onclick="updateComment(' + comment.id + ')">수정</button>');
-                            commentItem.append('<button type="button" onclick="deleteComment(' + comment.id + ", " + boardId + ')">삭제</button>');
-                        }
-                        commentsList.append(commentItem);
-                    });
-                }
+                    // 수정 및 삭제 버튼
+                    if (comment.memberEmail === loginEmail) {
+                        commentItem.append('<button type="button" onclick="updateComment(' + comment.id + ')">수정</button>');
+                        commentItem.append('<button type="button" onclick="deleteComment(' + comment.id + ", " + boardId + ')">삭제</button>');
+                    }
+                    commentsList.append(commentItem);
+                });
+                // 페이징 버튼 생성
+                generatePagination(totalPageValue, currentPageValue);
             }
         });
+    }
+
+    // 페이징 버튼 생성
+    function generatePagination() {
+        const paginationContainer = $("#commentPagination ul");
+        paginationContainer.empty();
+
+        paginationContainer.append(`<li class="page-item ${currentPageValue === 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(1)" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>`);
+
+        const prevButton = $(`<li class="page-item ${currentPageValue === 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${currentPageValue - 1})" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>`);
+        paginationContainer.append(prevButton);
+
+        for (let i = 1; i <= totalPageValue; i++) {
+            const pageButton = $(`<li class="page-item ${currentPageValue === i ? 'active' : ''}">
+                                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                            </li>`);
+            paginationContainer.append(pageButton);
+        }
+
+        const nextButton = $(`<li class="page-item ${currentPageValue === totalPageValue ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${currentPageValue + 1})" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>`);
+        paginationContainer.append(nextButton);
+
+        paginationContainer.append(`<li class="page-item ${currentPageValue === totalPageValue ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${totalPageValue})" aria-label="Next">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>`)
+    }
+
+    // 페이지 변경 시 호출되는 함수
+    function changePage(page) {
+        const boardId = [[${board.id}]];
+
+        if (page >= 1 && page <= totalPageValue) {
+            loadComments(boardId, page);
+        }
     }
 
     let currentCommentId = null;
@@ -161,7 +213,7 @@
         $.get('/comment/delete/' + commentId, function (data) {
             // 폼에 데이터 적용
             alert(data);
-            loadComments(boardId);
+            loadComments(boardId, 1);
         });
     }
 
@@ -180,7 +232,7 @@
                     // 댓글 작성 후 댓글 목록 다시 불러오기
                     if (data === 1) {
                         alert("댓글 작성 성공");
-                        loadComments(boardId);
+                        loadComments(boardId, 1);
                         // 작성 폼 초기화
                         $("#comment").val("");
                     } else if (xhr.status == 401) {
@@ -208,7 +260,7 @@
                     if (xhr.status === 200) {
 
                         alert(data);
-                        loadComments(boardId);
+                        loadComments(boardId, 1);
                         // 작성 폼 초기화
                         $("#comment").val("");
                         $("#commentWrite").text("댓글 작성");

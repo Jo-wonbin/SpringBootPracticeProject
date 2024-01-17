@@ -2,7 +2,7 @@ package com.wonbin.practice.controller;
 
 import com.wonbin.practice.dto.BoardDto;
 import com.wonbin.practice.dto.MemberDto;
-import com.wonbin.practice.dto.PagingDto;
+import com.wonbin.practice.dto.BoardPagingDto;
 import com.wonbin.practice.service.BoardService;
 import com.wonbin.practice.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -187,10 +187,10 @@ public class BoardController {
                 int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1;
                 int endPage = Math.min(startPage + blockLimit - 1, boardList.getTotalPages());
 
-                PagingDto pagingDto = new PagingDto(boardList, startPage, endPage);
+                BoardPagingDto boardPagingDto = new BoardPagingDto(boardList, startPage, endPage);
 
                 if (boardList.hasContent()) {
-                    return new ResponseEntity<>(pagingDto, HttpStatus.OK);
+                    return new ResponseEntity<>(boardPagingDto, HttpStatus.OK);
                 } else {
                     return new ResponseEntity<>("데이터가 없습니다.", HttpStatus.OK);
                 }
