@@ -31,6 +31,7 @@
             margin-top: 20px;
             float: right; /* 오른쪽에 배치 */
         }
+
     </style>
 </head>
 <body>
@@ -50,7 +51,7 @@
 
         <div class="form-group">
             <label for="district">지역구</label>
-            <select class="form-control" id="district" onchange="loadDistrictBoard()">
+            <select class="form-control" id="district" onchange="checkDistrict()">
                 <!-- 지역구 데이터는 동적으로 추가되므로 비워둡니다. -->
                 <option value="zero" selected>전체</option>
             </select>
@@ -74,6 +75,12 @@
             <!-- 게시글 목록 데이터가 동적으로 추가될 부분 -->
             </tbody>
         </table>
+
+        <div class="d-flex justify-content-center">
+            <ul class="pagination">
+                <!-- 동적으로 추가될 페이지 번호는 여기에 표시 -->
+            </ul>
+        </div>
 
         <!-- 게시글 작성 버튼 -->
         <button class="btn btn-primary" id="writePostBtn" onclick="boardWrite()">게시글 작성</button>

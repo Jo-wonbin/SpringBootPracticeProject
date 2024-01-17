@@ -2,6 +2,7 @@ package com.wonbin.practice.controller;
 
 import com.wonbin.practice.dto.BoardDto;
 import com.wonbin.practice.dto.MemberDto;
+import com.wonbin.practice.dto.PagingDto;
 import com.wonbin.practice.service.BoardService;
 import com.wonbin.practice.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,7 +19,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.List;
 
 @Tag(name = "board")
 @Controller
@@ -58,43 +58,6 @@ public class BoardController {
         System.out.println("BoardController.goToBoardList");
         return "board";
     }
-
-    @Operation(summary = "전체 게시글 조회", description = "게시글을 조회합니다.")
-    @GetMapping("/all")
-    public ResponseEntity findAll() {
-
-        List<BoardDto> boardDTOList = boardService.findAll();
-        if (boardDTOList != null) {
-            return new ResponseEntity<>(boardDTOList, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("게시글이 없습니다.", HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @Operation(summary = "광역시 게시글 조회", description = "게시글을 조회합니다.")
-    @GetMapping("/province/{id}")
-    public ResponseEntity findByProvince(@PathVariable Long id) {
-
-        List<BoardDto> boardDtoProvinceList = boardService.findByProvince(id);
-        if (boardDtoProvinceList != null) {
-            return new ResponseEntity<>(boardDtoProvinceList, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("해당 게시글이 존재하지 않습니다.", HttpStatus.NOT_FOUND);
-        }
-    }
-
-    @Operation(summary = "지역구 게시글 조회", description = "게시글을 조회합니다.")
-    @GetMapping("/district/{id}")
-    public ResponseEntity findByDistrict(@PathVariable Long id) {
-
-        List<BoardDto> boardDtoDistrictList = boardService.findByDistrict(id);
-        if (boardDtoDistrictList != null) {
-            return new ResponseEntity<>(boardDtoDistrictList, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>("해당 게시글이 존재하지 않습니다.", HttpStatus.NOT_FOUND);
-        }
-    }
-
 
     @Operation(summary = "게시글 상세 조회", description = "게시글을 상세 조회합니다.")
     @GetMapping("/{id}")
@@ -183,21 +146,59 @@ public class BoardController {
         }
     }
 
-    @Operation(summary = "게시글 페이징", description = "게시글을 페이징합니다.")
-    // /board/paging?page=1
+    @Operation(summary = "모든 게시글 페이징 조회", description = "모든 게시글을 페이징하여 조회합니다.")
     @GetMapping("/paging")
-    public String paging(@PageableDefault(page = 1) Pageable pageable, Model model) {
-        pageable.getPageNumber();
-        Page<BoardDto> boardList = boardService.paging(pageable);
-        int blockLimit = 3;
-        int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1; // 1 4 7 10 ~~
-        int endPage = ((startPage + blockLimit - 1) < boardList.getTotalPages()) ? startPage + blockLimit - 1 : boardList.getTotalPages();
-
-        model.addAttribute("boardList", boardList);
-        model.addAttribute("startPage", startPage);
-        model.addAttribute("endPage", endPage);
-
-        return "paging";
+    public ResponseEntity paging(@PageableDefault(page = 1) Pageable pageable) {
+        System.out.println("BoardController.paging");
+        return handlePagingRequest(pageable, null, false);
     }
 
+    @Operation(summary = "광역시 게시글 페이징 조회", description = "광역시 게시글을 페이징하여 조회합니다.")
+    @GetMapping("/province/{id}/paging")
+    public ResponseEntity provincePaging(@PageableDefault(page = 1) Pageable pageable, @PathVariable Long id) {
+        System.out.println("BoardController.provincePaging");
+        return handlePagingRequest(pageable, id, true);
+    }
+
+    @Operation(summary = "지역구 게시글 페이징 조회", description = "지역구 게시글을 페이징하여 조회합니다.")
+    @GetMapping("/district/{id}/paging")
+    public ResponseEntity districtPaging(@PageableDefault(page = 1) Pageable pageable, @PathVariable Long id) {
+        System.out.println("BoardController.districtPaging");
+        return handlePagingRequest(pageable, id, false);
+    }
+
+    /*
+        페이징 공통 기능을 모아 처리하는 핸들러
+     */
+    private ResponseEntity handlePagingRequest(Pageable pageable, Long id, boolean flag) {
+        try {
+            Page<BoardDto> boardList;
+
+            if (id == null) {
+                boardList = boardService.boardAllPaging(pageable);
+            } else if (flag) {
+                boardList = boardService.boardProvincePaging(pageable, id);
+            } else {
+                boardList = boardService.boardDistrictPaging(pageable, id);
+            }
+
+            if (boardList != null) {
+                int blockLimit = 10;
+                int startPage = (((int) (Math.ceil((double) pageable.getPageNumber() / blockLimit))) - 1) * blockLimit + 1;
+                int endPage = Math.min(startPage + blockLimit - 1, boardList.getTotalPages());
+
+                PagingDto pagingDto = new PagingDto(boardList, startPage, endPage);
+
+                if (boardList.hasContent()) {
+                    return new ResponseEntity<>(pagingDto, HttpStatus.OK);
+                } else {
+                    return new ResponseEntity<>("데이터가 없습니다.", HttpStatus.OK);
+                }
+            } else {
+                return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("서버 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 }

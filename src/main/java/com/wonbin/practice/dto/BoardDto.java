@@ -36,12 +36,15 @@ public class BoardDto {
     private List<String> storedFileName; // 서버 저장용 파일 이름
     private int fileAttached; // 파일 첨부 여부(첨부 1, 미첨부 0)
 
-    public BoardDto(Long id, String boardWriter, String boardTitle, int boardHits, LocalDateTime boardCreatedTime) {
+    public BoardDto(Long id, String boardWriter, String memberEmail, String boardTitle, int boardHits, LocalDateTime boardCreatedTime, String provinceName, String districtName) {
         this.id = id;
         this.boardWriter = boardWriter;
+        this.memberEmail = memberEmail;
         this.boardTitle = boardTitle;
         this.boardHits = boardHits;
         this.boardCreatedTime = boardCreatedTime;
+        this.provinceName = provinceName;
+        this.districtName = districtName;
     }
 
     public static BoardDto toBoardDTO(BoardEntity boardEntity) {
