@@ -157,8 +157,20 @@ function updatePagination() {
                             </a>
                         </li>`);
 
-    // 페이지 번호 버튼 추가
-    for (let i = 1; i <= totalPages; i++) {
+    let pageStart = Math.max(1, currentPage - 2);
+    let pageEnd = Math.min(totalPages, currentPage + 2);
+
+    // 현재 페이지가 1 또는 2일 경우, pageEnd를 5로 제한
+    if (currentPage <= 2) {
+        pageEnd = Math.min(5, totalPages);
+    }
+
+    // 현재 페이지와 totalPages의 차이가 0 또는 1일 경우, pageStart를 조정
+    if (totalPages - currentPage <= 1) {
+        pageStart = Math.max(1, totalPages - 4);
+    }
+
+    for (let i = pageStart; i <= pageEnd; i++) {
         $pagination.append(`<li class="page-item ${currentPage === i ? 'active' : ''}">
                                 <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
                             </li>`);
