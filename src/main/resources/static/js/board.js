@@ -1,42 +1,46 @@
 // 실행 시 지역구 불러오기 작동
 $(document).ready(function () {
     loadProvinces();
-    // fetchBoardData();
 });
+// 페이징 정보를 저장할 변수
+let currentPage = 1; // 현재 페이지
+let totalPages = 1; // 전체 페이지 수
 
-function loadBoards(provinceId) {
-    /*
-        1. 전체 / 광역시별 / 지역구별 분기
-        2. 데이터 불러오기
-        3. 데이터 화면 출력
-     */
-    if (provinceId === 0) {
+function loadPageBoard(page, provinceId, districtId) {
+    let url = "/board/paging";
 
-        // 전체 데이터 조회
-        $.get('/board/all', function (data) {
-            // 서버에서 받은 배열을 순회하면서 옵션을 추가
-            console.log("전체 데이터 조회");
-            displayBoardData(data);
-        });
-    } else {
-        // 광역시의 데이터 조회
-        $.get('/board/province/' + provinceId, function (data) {
-            // 서버에서 받은 배열을 순회하면서 옵션을 추가
-            console.log("광역시 데이터 조회");
-            displayBoardData(data);
-        });
+    if (provinceId && provinceId !== "zero") {
+        url = "/board/province/" + provinceId + "/paging";
+    } else if (districtId && districtId !== "zero") {
+        url = "/board/district/" + districtId + "/paging";
     }
-}
 
-function loadDistrictBoard() {
-    const districtId = $("#district").val();
-    if (districtId !== "zero") {
-        $.get('/board/district/' + districtId, function (data) {
-            // 서버에서 받은 배열을 순회하면서 옵션을 추가
-            console.log("지역구 데이터 조회");
-            displayBoardData(data);
-        });
-    }
+    $.ajax({
+        url: url + "?page=" + page,
+        type: "GET",
+        success: function (pagingDto) {
+            // 받아온 PagingDto를 이용해 게시글 목록 업데이트
+            if (pagingDto === "데이터가 없습니다.") {
+                const $tbody = $('#boardListBody');
+                $tbody.empty();
+                console.log("게시글 데이터 없음.");
+            } else {
+                displayBoardData(pagingDto.boardList.content);
+                // 페이징 정보 업데이트
+                currentPage = pagingDto.boardList.number + 1;
+                totalPages = pagingDto.boardList.totalPages;
+                // 페이징 업데이트
+                updatePagination();
+            }
+
+        },
+        error: function () {
+            const $tbody = $('#boardListBody');
+            $tbody.empty();
+
+            console.log("오류");
+        }
+    });
 }
 
 function detailBoard(boardId) {
@@ -72,6 +76,18 @@ function displayBoardData(data) {
     }
 }
 
+function checkDistrict() {
+    const province = $('#province').val();
+    const district = $('#district').val();
+    if (province === "zero") {
+        loadPageBoard(1, null, null);
+    } else if (district === "zero") {
+        loadPageBoard(1, province, null);
+    } else {
+        loadPageBoard(1, null, district);
+    }
+}
+
 // 광역시 선택 시 동작
 function updateDistricts() {
     const province = $('#province').val();
@@ -81,7 +97,6 @@ function updateDistricts() {
     districtSelect.empty();
     if (province === "zero") {
         districtSelect.append("<option value=" + "zero" + " selected>전체</option>");
-        loadBoards(0);
     } else {
         // Ajax를 통해 서버에서 데이터 동적으로 불러오기
         $.get('/area/district/' + province, function (data) {
@@ -92,8 +107,8 @@ function updateDistricts() {
                 districtSelect.append('<option value="' + districts.id + '">' + districts.name + '</option>');
             });
         });
-        loadBoards(province);
     }
+    loadPageBoard(1, province, null);
 }
 
 // 지역구 불러오기
@@ -103,10 +118,9 @@ function loadProvinces() {
     const provinceSelectValue = provinceSelect.val();
     if (provinceSelectValue === "zero") {
         $('#district').append("<option value=" + "zero" + " selected>전체</option>");
-        loadBoards(0);
     }
-
     // Ajax를 통해 서버에서 광역시 정보 동적으로 불러오기
+
     $.get('/area/province', function (data) {
         // 서버에서 받은 배열을 순회하면서 옵션을 추가
         console.log(data);
@@ -114,6 +128,7 @@ function loadProvinces() {
             provinceSelect.append('<option  value="' + province.id + '">' + province.name + '</option>');
         });
     });
+    loadPageBoard(1, provinceSelectValue, null);
 
 
 }
@@ -122,4 +137,50 @@ function loadProvinces() {
 function boardWrite() {
     console.log("게시글 이동 버튼 클릭");
     location.href = "/board/boardWrite";
+}
+
+// 페이징 업데이트
+function updatePagination() {
+    const $pagination = $(".pagination");
+    $pagination.empty();
+    // 맨 첫 페이지로 이동하는 버튼
+    $pagination.append(`<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(1)" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;&laquo;</span>
+                            </a>
+                        </li>`);
+
+    // 이전 페이지로 이동하는 버튼 추가
+    $pagination.append(`<li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${currentPage - 1})" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>`);
+
+    // 페이지 번호 버튼 추가
+    for (let i = 1; i <= totalPages; i++) {
+        $pagination.append(`<li class="page-item ${currentPage === i ? 'active' : ''}">
+                                <a class="page-link" href="#" onclick="changePage(${i})">${i}</a>
+                            </li>`);
+    }
+
+    // 다음 페이지로 이동하는 버튼 추가
+    $pagination.append(`<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${currentPage + 1})" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>`);
+    //맨 끝 페이지로 이동하는 버튼 추가
+    $pagination.append(`<li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${totalPages})" aria-label="Next">
+                                <span aria-hidden="true">&raquo;&raquo;</span>
+                            </a>
+                        </li>`);
+}
+
+// 페이지 변경 시 동작하는 함수
+function changePage(page) {
+    if (page >= 1 && page <= totalPages) {
+        loadPageBoard(page, $("#province").val(), $("#district").val());
+    }
 }
