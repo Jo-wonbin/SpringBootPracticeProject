@@ -3,12 +3,14 @@ package com.wonbin.practice.service;
 import com.wonbin.practice.dto.BoardDto;
 import com.wonbin.practice.entity.*;
 import com.wonbin.practice.repository.*;
+import com.wonbin.practice.specification.BoardSpecification;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -189,18 +191,29 @@ public class BoardService {
         }
     }
 
-    public Page<BoardDto> paging(Pageable pageable) {
+    public Page<BoardDto> boardPagingBySpecification(Pageable pageable, Specification<BoardEntity> spec) {
         int page = pageable.getPageNumber() - 1;
-        int pageLimit = 3;
+        int pageLimit = 10;
 
-        // 한 페이지당 3개씩 정렬 기준은 id 내림차순
-        Page<BoardEntity> boardEntities = boardRepository.findAll(PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "id")));
+        Page<BoardEntity> boardEntityPage = boardRepository.findAll(spec, PageRequest.of(page, pageLimit, Sort.by(Sort.Direction.DESC, "id")));
 
-        Page<BoardDto> dtoPage = boardEntities.map(board -> new BoardDto(
-                board.getId(), board.getBoardWriter(), board.getBoardTitle(), board.getBoardHits(), board.getCreatedTime()
+        return boardEntityPage.map(board -> new BoardDto(
+                board.getId(), board.getBoardWriter(), board.getMemberEmail(), board.getBoardTitle(), board.getBoardHits(), board.getCreatedTime(), board.getProvinceName(), board.getDistrictName()
         ));
+    }
 
-        return dtoPage;
+    public Page<BoardDto> boardAllPaging(Pageable pageable) {
+        return boardPagingBySpecification(pageable, null);
+    }
+
+    public Page<BoardDto> boardProvincePaging(Pageable pageable, Long provinceId) {
+        Specification<BoardEntity> spec = (provinceId != null) ? BoardSpecification.hasProvinceId(provinceId) : null;
+        return boardPagingBySpecification(pageable, spec);
+    }
+
+    public Page<BoardDto> boardDistrictPaging(Pageable pageable, Long districtId) {
+        Specification<BoardEntity> spec = (districtId != null) ? BoardSpecification.hasDistrictId(districtId) : null;
+        return boardPagingBySpecification(pageable, spec);
     }
 
     /*
