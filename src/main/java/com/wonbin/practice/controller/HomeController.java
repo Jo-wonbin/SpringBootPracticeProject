@@ -13,23 +13,8 @@ public class HomeController {
         return "homepage";
     }
 
-//    @GetMapping("/home")
-//    public String goHome() {
-//        return "homepage";
-//    }
-//
-//    @GetMapping("/bb")
-//    public String loginMain() {
-//        return "board";
-//    }
-//
-//    @GetMapping("/signUp")
-//    public String signUp() {
-//        return "signUp";
-//    }
-//
-//    @GetMapping("/detailBoard")
-//    public String board() {
-//        return "detailBoard";
-//    }
+    @GetMapping("/chat")
+    public String goHome() {
+        return "chat";
+    }
 }
