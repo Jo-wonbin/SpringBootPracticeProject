@@ -1,14 +1,18 @@
 package com.wonbin.practice.service;
 
-import com.wonbin.practice.dto.ChatMessageDto;
-import com.wonbin.practice.entity.chat.ChatMessageEntity;
-import com.wonbin.practice.repository.ChatMessageRepository;
+import com.wonbin.practice.dto.chat.*;
+import com.wonbin.practice.entity.chat.*;
+import com.wonbin.practice.entity.member.MemberEntity;
+import com.wonbin.practice.repository.MemberRepository;
+import com.wonbin.practice.repository.chat.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -16,6 +20,13 @@ import java.util.stream.Collectors;
 public class ChatService {
 
     private final ChatMessageRepository chatMessageRepository;
+    private final MemberRepository memberRepository;
+    private final ChatRoomOneToOneRepository chatRoomOneToOneRepository;
+    private final ChatMessageOneToOneRepository chatMessageOneToOneRepository;
+    private final ChatRoomProvinceRepository chatRoomProvinceRepository;
+    private final ChatMessageProvinceRepository chatMessageProvinceRepository;
+    private final ChatRoomDistrictRepository chatRoomDistrictRepository;
+    private final ChatMessageDistrictRepository chatMessageDistrictRepository;
 
     public void save(ChatMessageDto chatMessageDto) {
         try {
@@ -33,5 +44,75 @@ public class ChatService {
         return chatMessageDtoList.stream()
                 .map(ChatMessageDto::toDto)
                 .collect(Collectors.toList());
+    }
+
+    public ChatListDto findChatList(String memberEmail) {
+        ChatListDto chatListDto;
+        Optional<MemberEntity> byMemberEmail = memberRepository.findByMemberEmail(memberEmail);
+        if (byMemberEmail.isPresent()) {
+
+            Long memberId = byMemberEmail.get().getId();
+            /*
+                1대1 채팅방 목록
+                1. 로그인한 멤버의 1대1 채팅방을 리스트로 불러옴.
+                2. 채팅방 마다 최근 채팅 하나를 불러옴.
+                3. dto로 변환하여 반환한다.
+             */
+            chatListDto = new ChatListDto();
+
+            List<ChatRoomOneToOneEntity> chatRoomOneToOneEntityList = chatRoomOneToOneRepository.findByMemberEntityFirstIdOrMemberEntitySecondId(memberId, memberId);
+            List<ChatMessageOneToOneDto> chatMessageOneToOneDtoList = new ArrayList<>();
+            List<ChatRoomOneToOneDto> chatRoomOneToOneDtoList = new ArrayList<>();
+            for (ChatRoomOneToOneEntity chatRoomOneToOneEntity : chatRoomOneToOneEntityList) {
+
+                ChatRoomOneToOneDto chatRoomOneToOneDto = ChatRoomOneToOneDto.toChatRoomOneToOneDto(chatRoomOneToOneEntity, memberId);
+
+                ChatMessageOneToOneEntity chatMessageOneToOneEntity = chatMessageOneToOneRepository
+                        .findTop1ByChatRoomIdOrderByMessageCreatedTimeDesc(chatRoomOneToOneEntity.getChatRoomId());
+                ChatMessageOneToOneDto chatMessageOneToOneDto = ChatMessageOneToOneDto.toChatMessageOneToOneDto(chatMessageOneToOneEntity);
+
+                chatMessageOneToOneDtoList.add(chatMessageOneToOneDto);
+                chatRoomOneToOneDtoList.add(chatRoomOneToOneDto);
+            }
+            chatListDto.setChatMessageOneToOneDtoList(chatMessageOneToOneDtoList);
+            chatListDto.setChatRoomOneToOneDtoList(chatRoomOneToOneDtoList);
+
+            /*
+                광역시 채팅방
+                1. 로그인한 유저의 광역시 채팅방불러옴.
+                2. 채팅방의 가장 최근 채팅 하나 불러옴.
+                3. dto로 변환하여 반환
+             */
+            ChatRoomProvinceEntity chatRoomProvinceEntity = chatRoomProvinceRepository.findByProvinceId(byMemberEmail.get().getProvinceId());
+            ChatRoomProvinceDto chatRoomProvinceDto = ChatRoomProvinceDto.toChatRoomProvinceDto(chatRoomProvinceEntity);
+
+            ChatMessageProvinceEntity chatMessageProvinceEntity = chatMessageProvinceRepository.findTop1ByProvinceIdOrderByMessageCreatedTimeDesc(byMemberEmail.get().getProvinceId());
+            ChatMessageProvinceDto chatMessageProvinceDto = ChatMessageProvinceDto.toChatMessageProvinceDto(chatMessageProvinceEntity);
+
+            chatListDto.setChatRoomProvinceDto(chatRoomProvinceDto);
+            chatListDto.setChatMessageProvinceDto(chatMessageProvinceDto);
+
+            /*
+                지역구 채팅방
+                1. 로그인한 유저의 지역구 채팅방불러옴.
+                2. 채팅방의 가장 최근 채팅 하나 불러옴.
+                3. dto로 변환하여 반환
+             */
+
+            ChatRoomDistrictEntity chatRoomDistrictEntity = chatRoomDistrictRepository
+                    .findByProvinceIdAndDistrictId(byMemberEmail.get().getProvinceId(), byMemberEmail.get().getDistrictId());
+            ChatRoomDistrictDto chatRoomDistrictDto = ChatRoomDistrictDto.toChatRoomDistrictDto(chatRoomDistrictEntity);
+
+            ChatMessageDistrictEntity chatMessageDistrictEntity = chatMessageDistrictRepository
+                    .findTop1ByProvinceIdAndDistrictIdOrderByMessageCreatedTimeDesc(byMemberEmail.get().getProvinceId(), byMemberEmail.get().getDistrictId());
+
+            ChatMessageDistrictDto chatMessageDistrictDto = ChatMessageDistrictDto.toChatMessageDistrictDto(chatMessageDistrictEntity);
+
+            chatListDto.setChatRoomDistrictDto(chatRoomDistrictDto);
+            chatListDto.setChatMessageDistrictDto(chatMessageDistrictDto);
+        } else {
+            return null;
+        }
+        return chatListDto;
     }
 }
