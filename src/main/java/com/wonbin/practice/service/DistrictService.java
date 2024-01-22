@@ -1,8 +1,8 @@
 package com.wonbin.practice.service;
 
 import com.wonbin.practice.dto.DistrictDto;
-import com.wonbin.practice.entity.DistrictEntity;
-import com.wonbin.practice.entity.ProvinceEntity;
+import com.wonbin.practice.entity.board.DistrictEntity;
+import com.wonbin.practice.entity.board.ProvinceEntity;
 import com.wonbin.practice.repository.DistrictRepository;
 import com.wonbin.practice.repository.ProvinceRepository;
 import lombok.RequiredArgsConstructor;

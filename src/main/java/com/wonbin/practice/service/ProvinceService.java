@@ -1,7 +1,7 @@
 package com.wonbin.practice.service;
 
 import com.wonbin.practice.dto.ProvinceDto;
-import com.wonbin.practice.entity.ProvinceEntity;
+import com.wonbin.practice.entity.board.ProvinceEntity;
 import com.wonbin.practice.repository.ProvinceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

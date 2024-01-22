@@ -1,5 +1,6 @@
-package com.wonbin.practice.entity;
+package com.wonbin.practice.entity.board;
 
+import com.wonbin.practice.entity.board.DistrictEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

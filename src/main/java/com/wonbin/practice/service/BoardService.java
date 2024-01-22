@@ -1,7 +1,11 @@
 package com.wonbin.practice.service;
 
 import com.wonbin.practice.dto.BoardDto;
-import com.wonbin.practice.entity.*;
+import com.wonbin.practice.entity.board.BoardEntity;
+import com.wonbin.practice.entity.board.BoardFileEntity;
+import com.wonbin.practice.entity.board.DistrictEntity;
+import com.wonbin.practice.entity.board.ProvinceEntity;
+import com.wonbin.practice.entity.member.MemberEntity;
 import com.wonbin.practice.repository.*;
 import com.wonbin.practice.specification.BoardSpecification;
 import jakarta.transaction.Transactional;

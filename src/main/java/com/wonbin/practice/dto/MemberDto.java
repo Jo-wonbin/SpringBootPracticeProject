@@ -1,6 +1,6 @@
 package com.wonbin.practice.dto;
 
-import com.wonbin.practice.entity.MemberEntity;
+import com.wonbin.practice.entity.member.MemberEntity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

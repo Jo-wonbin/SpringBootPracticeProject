@@ -1,12 +1,11 @@
 package com.wonbin.practice.repository;
 
-import com.wonbin.practice.entity.BoardEntity;
-import com.wonbin.practice.entity.BoardFileEntity;
+import com.wonbin.practice.entity.board.BoardEntity;
+import com.wonbin.practice.entity.board.BoardFileEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
-import java.util.Optional;
 
 @Repository
 public interface BoardFileRepository extends JpaRepository<BoardFileEntity, Long> {

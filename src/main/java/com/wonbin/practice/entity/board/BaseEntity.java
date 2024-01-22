@@ -1,4 +1,4 @@
-package com.wonbin.practice.entity;
+package com.wonbin.practice.entity.board;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

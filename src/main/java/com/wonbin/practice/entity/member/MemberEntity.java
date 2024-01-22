@@ -1,6 +1,8 @@
-package com.wonbin.practice.entity;
+package com.wonbin.practice.entity.member;
 
 import com.wonbin.practice.dto.MemberDto;
+import com.wonbin.practice.entity.board.BoardEntity;
+import com.wonbin.practice.entity.board.CommentEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

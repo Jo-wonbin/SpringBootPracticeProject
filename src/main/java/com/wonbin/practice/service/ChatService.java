@@ -1,15 +1,13 @@
 package com.wonbin.practice.service;
 
 import com.wonbin.practice.dto.ChatMessageDto;
-import com.wonbin.practice.entity.ChatMessageEntity;
+import com.wonbin.practice.entity.chat.ChatMessageEntity;
 import com.wonbin.practice.repository.ChatMessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 

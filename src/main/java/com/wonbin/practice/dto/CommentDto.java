@@ -1,7 +1,7 @@
 package com.wonbin.practice.dto;
 
 
-import com.wonbin.practice.entity.CommentEntity;
+import com.wonbin.practice.entity.board.CommentEntity;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;

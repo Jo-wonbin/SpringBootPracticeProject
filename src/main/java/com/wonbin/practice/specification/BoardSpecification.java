@@ -1,6 +1,6 @@
 package com.wonbin.practice.specification;
 
-import com.wonbin.practice.entity.BoardEntity;
+import com.wonbin.practice.entity.board.BoardEntity;
 import org.springframework.data.jpa.domain.Specification;
 
 public class BoardSpecification {
