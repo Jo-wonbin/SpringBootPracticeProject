@@ -3,6 +3,7 @@ package com.wonbin.practice.entity.member;
 import com.wonbin.practice.dto.MemberDto;
 import com.wonbin.practice.entity.board.BoardEntity;
 import com.wonbin.practice.entity.board.CommentEntity;
+import com.wonbin.practice.entity.chat.ChatRoomOneToOneEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -46,6 +47,13 @@ public class MemberEntity {
 
     @OneToMany(mappedBy = "memberEntity", cascade = CascadeType.REMOVE, fetch = FetchType.LAZY)
     private List<CommentEntity> commentEntityList = new ArrayList<>();
+
+    @OneToMany(mappedBy = "memberEntityFirst")
+    private List<ChatRoomOneToOneEntity> chatRoomsAsFirstMember = new ArrayList<>();
+
+    @OneToMany(mappedBy = "memberEntitySecond")
+    private List<ChatRoomOneToOneEntity> chatRoomsAsSecondMember = new ArrayList<>();
+
 
     public static MemberEntity toMemberEntity(MemberDto memberDto) {
         MemberEntity memberEntity = new MemberEntity();

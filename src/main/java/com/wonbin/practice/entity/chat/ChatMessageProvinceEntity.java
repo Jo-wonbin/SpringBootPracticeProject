@@ -1,6 +1,6 @@
 package com.wonbin.practice.entity.chat;
 
-import com.wonbin.practice.dto.chat.ChatProvinceDto;
+import com.wonbin.practice.dto.chat.ChatMessageProvinceDto;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -14,7 +14,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Builder
 @Document(collection = "province_message")
-public class ChatProvinceEntity {
+public class ChatMessageProvinceEntity {
 
     @Id
     private String id;
@@ -25,16 +25,16 @@ public class ChatProvinceEntity {
     private Long provinceId;
     private String provinceName;
 
-    public static ChatProvinceEntity toChatProvinceEntity(ChatProvinceDto chatProvinceDto) {
-        ChatProvinceEntity chatProvinceEntity = new ChatProvinceEntity();
-        chatProvinceEntity.setProvinceId(chatProvinceDto.getProvinceId());
-        chatProvinceEntity.setProvinceName(chatProvinceDto.getProvinceName());
-        chatProvinceEntity.setMemberEmail(chatProvinceDto.getMemberEmail());
-        chatProvinceEntity.setMemberName(chatProvinceDto.getMemberName());
-        chatProvinceEntity.setMessageCreatedTime(chatProvinceDto.getMessageCreatedTime());
-        chatProvinceEntity.setMessage(chatProvinceDto.getMessage());
+    public static ChatMessageProvinceEntity toChatProvinceEntity(ChatMessageProvinceDto chatMessageProvinceDto) {
+        ChatMessageProvinceEntity chatMessageProvinceEntity = new ChatMessageProvinceEntity();
+        chatMessageProvinceEntity.setProvinceId(chatMessageProvinceDto.getProvinceId());
+        chatMessageProvinceEntity.setProvinceName(chatMessageProvinceDto.getProvinceName());
+        chatMessageProvinceEntity.setMemberEmail(chatMessageProvinceDto.getMemberEmail());
+        chatMessageProvinceEntity.setMemberName(chatMessageProvinceDto.getMemberName());
+        chatMessageProvinceEntity.setMessageCreatedTime(chatMessageProvinceDto.getMessageCreatedTime());
+        chatMessageProvinceEntity.setMessage(chatMessageProvinceDto.getMessage());
 
-        return chatProvinceEntity;
+        return chatMessageProvinceEntity;
     }
 
 }

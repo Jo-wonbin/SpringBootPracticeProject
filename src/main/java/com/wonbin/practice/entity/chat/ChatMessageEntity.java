@@ -1,6 +1,6 @@
 package com.wonbin.practice.entity.chat;
 
-import com.wonbin.practice.dto.ChatMessageDto;
+import com.wonbin.practice.dto.chat.ChatMessageDto;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;

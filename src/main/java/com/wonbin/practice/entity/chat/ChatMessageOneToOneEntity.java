@@ -12,16 +12,14 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Document(collection = "district_message")
-public class ChatMessageDistrictEntity {
+@Document(collection = "one_to_one_message")
+public class ChatMessageOneToOneEntity {
 
     @Id
     private String id;
+    private String chatRoomId;
     private String memberEmail;
     private String memberName;
     private String message;
     private Date messageCreatedTime;
-    private Long provinceId;
-    private Long districtId;
-    private String districtName;
 }
