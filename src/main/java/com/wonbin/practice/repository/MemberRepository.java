@@ -1,6 +1,6 @@
 package com.wonbin.practice.repository;
 
-import com.wonbin.practice.entity.MemberEntity;
+import com.wonbin.practice.entity.member.MemberEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

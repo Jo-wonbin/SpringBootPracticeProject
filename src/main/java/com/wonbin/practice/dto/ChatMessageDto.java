@@ -1,6 +1,6 @@
 package com.wonbin.practice.dto;
 
-import com.wonbin.practice.entity.ChatMessageEntity;
+import com.wonbin.practice.entity.chat.ChatMessageEntity;
 import lombok.*;
 
 import java.util.Date;

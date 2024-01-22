@@ -1,10 +1,9 @@
 package com.wonbin.practice.repository;
 
-import com.wonbin.practice.entity.BoardEntity;
-import com.wonbin.practice.entity.CommentEntity;
+import com.wonbin.practice.entity.board.BoardEntity;
+import com.wonbin.practice.entity.board.CommentEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

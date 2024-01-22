@@ -1,7 +1,7 @@
 package com.wonbin.practice.dto;
 
-import com.wonbin.practice.entity.BoardEntity;
-import com.wonbin.practice.entity.BoardFileEntity;
+import com.wonbin.practice.entity.board.BoardEntity;
+import com.wonbin.practice.entity.board.BoardFileEntity;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 

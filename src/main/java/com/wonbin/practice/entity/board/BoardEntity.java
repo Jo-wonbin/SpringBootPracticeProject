@@ -1,6 +1,7 @@
-package com.wonbin.practice.entity;
+package com.wonbin.practice.entity.board;
 
 import com.wonbin.practice.dto.BoardDto;
+import com.wonbin.practice.entity.member.MemberEntity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;

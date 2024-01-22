@@ -1,11 +1,9 @@
-package com.wonbin.practice.entity;
+package com.wonbin.practice.entity.board;
 
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
-
-import java.util.Optional;
 
 @Entity
 @Getter

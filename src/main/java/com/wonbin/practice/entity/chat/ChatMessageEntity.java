@@ -1,4 +1,4 @@
-package com.wonbin.practice.entity;
+package com.wonbin.practice.entity.chat;
 
 import com.wonbin.practice.dto.ChatMessageDto;
 import lombok.*;

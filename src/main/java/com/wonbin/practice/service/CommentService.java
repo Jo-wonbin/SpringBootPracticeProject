@@ -1,9 +1,9 @@
 package com.wonbin.practice.service;
 
 import com.wonbin.practice.dto.CommentDto;
-import com.wonbin.practice.entity.BoardEntity;
-import com.wonbin.practice.entity.CommentEntity;
-import com.wonbin.practice.entity.MemberEntity;
+import com.wonbin.practice.entity.board.BoardEntity;
+import com.wonbin.practice.entity.board.CommentEntity;
+import com.wonbin.practice.entity.member.MemberEntity;
 import com.wonbin.practice.repository.BoardRepository;
 import com.wonbin.practice.repository.CommentRepository;
 import com.wonbin.practice.repository.MemberRepository;
@@ -13,7 +13,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
