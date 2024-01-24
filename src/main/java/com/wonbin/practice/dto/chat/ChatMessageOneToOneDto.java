@@ -21,6 +21,9 @@ public class ChatMessageOneToOneDto {
     private Date messageCreatedTime;
 
     public static ChatMessageOneToOneDto toChatMessageOneToOneDto(ChatMessageOneToOneEntity chatMessageOneToOneEntity) {
+        if (chatMessageOneToOneEntity == null) {
+            return null; // 또는 적절한 기본값을 반환할 수 있음
+        }
         ChatMessageOneToOneDto chatMessageOneToOneDto = ChatMessageOneToOneDto.builder()
                 .id(chatMessageOneToOneEntity.getId())
                 .chatRoomId(chatMessageOneToOneEntity.getChatRoomId())

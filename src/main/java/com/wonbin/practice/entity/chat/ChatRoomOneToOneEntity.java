@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 
 import java.time.LocalDateTime;
 
@@ -21,7 +22,7 @@ public class ChatRoomOneToOneEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column
+    @Column(unique = true)
     private String chatRoomId;
 
     @Column
@@ -33,6 +34,9 @@ public class ChatRoomOneToOneEntity {
     @CreatedDate
     @Column(updatable = false)
     private LocalDateTime createdTime;
+
+    @LastModifiedDate
+    private LocalDateTime lastModifiedTime;
 
     @ManyToOne
     @JoinColumn(name = "first_member_id", referencedColumnName = "id")

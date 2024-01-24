@@ -18,6 +18,7 @@ public class ChatRoomOneToOneDto {
     private String chatRoomName;
     private int notice;
     private LocalDateTime createdTime;
+    private LocalDateTime lastModifiedTime;
     private Long myId;
     private Long targetId;
 
@@ -30,6 +31,7 @@ public class ChatRoomOneToOneDto {
                 .chatRoomName(chatRoomOneToOneEntity.getChatRoomName())
                 .notice(chatRoomOneToOneEntity.getNotice())
                 .createdTime(chatRoomOneToOneEntity.getCreatedTime())
+                .lastModifiedTime(chatRoomOneToOneEntity.getLastModifiedTime())
                 .myId(myId)
                 .targetId(targetId)
                 .build();
