@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface ChatRoomOneToOneRepository extends JpaRepository<ChatRoomOneToOneEntity, Long> {
     List<ChatRoomOneToOneEntity> findByMemberEntityFirstIdOrMemberEntitySecondId(Long memberEntityFirstId, Long memberEntitySecondId);
+
+    ChatRoomOneToOneEntity findByChatRoomId(String chatRoomId);
 }

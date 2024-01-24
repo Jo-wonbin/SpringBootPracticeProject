@@ -1,50 +1,87 @@
 package com.wonbin.practice.controller;
 
-import com.wonbin.practice.dto.chat.ChatListDto;
-import com.wonbin.practice.dto.chat.ChatMessageDto;
+import com.wonbin.practice.dto.chat.*;
 import com.wonbin.practice.service.ChatService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
+
+/*
+    채팅방 조회 및 생성하는 컨트롤러
+ */
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/chat")
-public class ChatController {
+public class ChatRoomController {
 
-    private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
 
-    /*
-        "/app/chat" 요청으로 온 메세지
-     */
-    @MessageMapping("/chat")
-    public void processMessage(@Payload ChatMessageDto chatMessage, SimpMessageHeaderAccessor headerAccessor) throws Exception {
-
-
-        chatMessage.setMessageCreatedTime(new Date());
-        chatService.save(chatMessage);
-
-        // 클라이언트로 메세지 보내기 /topic/messages
-        messagingTemplate.convertAndSend("/topic/messages", chatMessage);
+    @GetMapping("/oneToOne/{targetId}")
+    public ResponseEntity findOneToOneChatRoom(@PathVariable Long targetId, HttpSession session) {
+        String email = (String) session.getAttribute("loginEmail");
+        if (email != null) {
+            ChatRoomOneToOneDto chatRoomOneToOneDto = chatService.findOneToOneChatRoom(email, targetId);
+            if (chatRoomOneToOneDto != null) {
+                return new ResponseEntity<>(chatRoomOneToOneDto, HttpStatus.OK);
+            } else {
+                return new ResponseEntity<>("Chat room not found", HttpStatus.NOT_FOUND);
+            }
+        }
+        return new ResponseEntity<>("User not authenticated", HttpStatus.UNAUTHORIZED);
     }
 
+    //    @GetMapping("/history")
+//    public ResponseEntity<List<ChatMessageDto>> getChatHistory(
+//            @RequestParam(value = "page", defaultValue = "0") int page,
+//            @RequestParam(value = "size", defaultValue = "10") int size) {
+//
+//        try {
+//            List<ChatMessageDto> chatHistory = chatService.getChatHistory(page, size);
+//            return new ResponseEntity<>(chatHistory, HttpStatus.OK);
+//        } catch (Exception e) {
+//            // Handle exceptions and return an appropriate response
+//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+//        }
+//    }
     @GetMapping("/history")
-    public ResponseEntity<List<ChatMessageDto>> getChatHistory(
-            @RequestParam(value = "page", defaultValue = "0") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size) {
+    public ResponseEntity<List<ChatMessageOneToOneDto>> getChatHistory(
+            @RequestParam("chatRoomId") String chatRoomId) {
 
         try {
-            List<ChatMessageDto> chatHistory = chatService.getChatHistory(page, size);
+            List<ChatMessageOneToOneDto> chatHistory = chatService.getChatOneToOneHistory(chatRoomId);
+            return new ResponseEntity<>(chatHistory, HttpStatus.OK);
+        } catch (Exception e) {
+            // Handle exceptions and return an appropriate response
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/province/history")
+    public ResponseEntity<List<ChatMessageProvinceDto>> getChatProvinceHistory(
+            @RequestParam("provinceId") Long provinceId) {
+
+        try {
+            List<ChatMessageProvinceDto> chatHistory = chatService.getChatProvinceHistory(provinceId);
+            return new ResponseEntity<>(chatHistory, HttpStatus.OK);
+        } catch (Exception e) {
+            // Handle exceptions and return an appropriate response
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @GetMapping("/district/history")
+    public ResponseEntity<List<ChatMessageDistrictDto>> getChatDistrictHistory(
+            @RequestParam("provinceId") Long provinceId,
+            @RequestParam("districtId") Long districtId
+    ) {
+
+        try {
+            List<ChatMessageDistrictDto> chatHistory = chatService.getChatDistrictHistory(provinceId, districtId);
             return new ResponseEntity<>(chatHistory, HttpStatus.OK);
         } catch (Exception e) {
             // Handle exceptions and return an appropriate response
@@ -54,6 +91,7 @@ public class ChatController {
 
     @GetMapping("/chatList")
     public ResponseEntity<ChatListDto> getChatList(HttpSession session) {
+        System.out.println("ChatRoomController.getChatList");
         String loginEmail = (String) session.getAttribute("loginEmail");
 
         if (loginEmail == null) {

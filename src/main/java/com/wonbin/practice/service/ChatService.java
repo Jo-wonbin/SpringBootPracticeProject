@@ -8,6 +8,7 @@ import com.wonbin.practice.repository.chat.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -28,12 +29,20 @@ public class ChatService {
     private final ChatRoomDistrictRepository chatRoomDistrictRepository;
     private final ChatMessageDistrictRepository chatMessageDistrictRepository;
 
-    public void save(ChatMessageDto chatMessageDto) {
-        try {
-            chatMessageRepository.save(ChatMessageEntity.toEntity(chatMessageDto));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public void save(ChatMessageDto chatMessageDto) throws Exception {
+        chatMessageRepository.save(ChatMessageEntity.toEntity(chatMessageDto));
+    }
+
+    public void saveOneToOneMessage(ChatMessageOneToOneDto chatMessageOneToOneDto) {
+        chatMessageOneToOneRepository.save(ChatMessageOneToOneEntity.toChatOneToOneEntity(chatMessageOneToOneDto));
+    }
+
+    public void saveProvinceMessage(ChatMessageProvinceDto chatMessageProvinceDto) {
+        chatMessageProvinceRepository.save(ChatMessageProvinceEntity.toChatProvinceEntity(chatMessageProvinceDto));
+    }
+
+    public void saveDistrictMessage(ChatMessageDistrictDto chatMessageDistrictDto) {
+        chatMessageDistrictRepository.save(ChatMessageDistrictEntity.toChatDistrictEntity(chatMessageDistrictDto));
     }
 
     public List<ChatMessageDto> getChatHistory(int page, int size) {
@@ -114,5 +123,72 @@ public class ChatService {
             return null;
         }
         return chatListDto;
+    }
+
+    /*
+        채팅방이 존재하면 반환하고 없으면 생성하여 반환
+     */
+    public ChatRoomOneToOneDto findOneToOneChatRoom(String email, Long targetId) {
+        Optional<MemberEntity> optionalMemberEntity = memberRepository.findByMemberEmail(email);
+
+        if (optionalMemberEntity.isPresent()) {
+
+            Long myId = optionalMemberEntity.get().getId();
+            String chatRoomId = myId > targetId ? targetId + "-" + myId : myId + "-" + targetId;
+            ChatRoomOneToOneEntity chatRoomOneToOneEntity = chatRoomOneToOneRepository.findByChatRoomId(chatRoomId);
+            if (chatRoomOneToOneEntity != null) {
+                return ChatRoomOneToOneDto.toChatRoomOneToOneDto(chatRoomOneToOneEntity, myId);
+            } else {
+                ChatRoomOneToOneEntity saveEntity = new ChatRoomOneToOneEntity();
+
+                Optional<MemberEntity> optionalMemberEntity1 = memberRepository.findById(targetId);
+                if (optionalMemberEntity.isPresent() && optionalMemberEntity1.isPresent()) {
+                    MemberEntity myMemberEntity = optionalMemberEntity.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + myId));
+                    MemberEntity targetMemberEntity = optionalMemberEntity1.orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + targetId));
+
+                    saveEntity.setMemberEntityFirst(myId > targetId ? targetMemberEntity : myMemberEntity);
+                    saveEntity.setMemberEntitySecond(myId < targetId ? targetMemberEntity : myMemberEntity);
+                }
+
+                saveEntity.setChatRoomId(chatRoomId);
+                saveEntity.setChatRoomName(chatRoomId);
+                ChatRoomOneToOneEntity save = chatRoomOneToOneRepository.save(saveEntity);
+                return ChatRoomOneToOneDto.toChatRoomOneToOneDto(save, myId);
+            }
+
+        } else {
+            return null;
+        }
+
+    }
+
+    public List<ChatMessageOneToOneDto> getChatOneToOneHistory(String chatRoomId) {
+        List<ChatMessageOneToOneEntity> chatMessageOneToOneEntityList = chatMessageOneToOneRepository
+                .findAllByChatRoomIdOrderByMessageCreatedTimeDesc(chatRoomId);
+        List<ChatMessageOneToOneDto> chatMessageOneToOneDtoList = new ArrayList<>();
+        for (ChatMessageOneToOneEntity chatMessageOneToOneEntity : chatMessageOneToOneEntityList) {
+            chatMessageOneToOneDtoList.add(ChatMessageOneToOneDto.toChatMessageOneToOneDto(chatMessageOneToOneEntity));
+        }
+        return chatMessageOneToOneDtoList;
+    }
+
+    public List<ChatMessageProvinceDto> getChatProvinceHistory(Long provinceId) {
+        List<ChatMessageProvinceEntity> chatMessageProvinceEntities = chatMessageProvinceRepository
+                .findAllByProvinceIdOrderByMessageCreatedTimeDesc(provinceId);
+        List<ChatMessageProvinceDto> chatMessageProvinceDtoList = new ArrayList<>();
+        for (ChatMessageProvinceEntity chatMessageProvinceEntity : chatMessageProvinceEntities) {
+            chatMessageProvinceDtoList.add(ChatMessageProvinceDto.toChatMessageProvinceDto(chatMessageProvinceEntity));
+        }
+        return chatMessageProvinceDtoList;
+    }
+
+    public List<ChatMessageDistrictDto> getChatDistrictHistory(Long provinceId, Long districtId) {
+        List<ChatMessageDistrictEntity> chatMessageDistrictEntities = chatMessageDistrictRepository
+                .findAllByProvinceIdAndDistrictIdOrderByMessageCreatedTimeDesc(provinceId, districtId);
+        List<ChatMessageDistrictDto> chatMessageDistrictDtoList = new ArrayList<>();
+        for (ChatMessageDistrictEntity chatMessageDistrictEntity : chatMessageDistrictEntities) {
+            chatMessageDistrictDtoList.add(ChatMessageDistrictDto.toChatMessageDistrictDto(chatMessageDistrictEntity));
+        }
+        return chatMessageDistrictDtoList;
     }
 }

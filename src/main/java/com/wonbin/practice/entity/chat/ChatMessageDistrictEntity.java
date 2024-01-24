@@ -1,5 +1,6 @@
 package com.wonbin.practice.entity.chat;
 
+import com.wonbin.practice.dto.chat.ChatMessageDistrictDto;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -24,4 +25,18 @@ public class ChatMessageDistrictEntity {
     private Long provinceId;
     private Long districtId;
     private String districtName;
+
+    public static ChatMessageDistrictEntity toChatDistrictEntity(ChatMessageDistrictDto chatMessageDistrictDto) {
+        ChatMessageDistrictEntity chatMessageDistrictEntity = ChatMessageDistrictEntity.builder()
+                .message(chatMessageDistrictDto.getMessage())
+                .districtId(chatMessageDistrictDto.getDistrictId())
+                .districtName(chatMessageDistrictDto.getDistrictName())
+                .memberEmail(chatMessageDistrictDto.getMemberEmail())
+                .memberName(chatMessageDistrictDto.getMemberName())
+                .provinceId(chatMessageDistrictDto.getProvinceId())
+                .messageCreatedTime(chatMessageDistrictDto.getMessageCreatedTime())
+                .build();
+
+        return chatMessageDistrictEntity;
+    }
 }

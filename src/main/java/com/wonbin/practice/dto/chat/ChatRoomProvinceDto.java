@@ -11,14 +11,14 @@ import lombok.*;
 @Builder
 public class ChatRoomProvinceDto {
 
-    private Long id;
+    private Long chatRoomId;
     private Long provinceId;
     private String provinceName;
     private String chatRoomName;
 
     public static ChatRoomProvinceDto toChatRoomProvinceDto(ChatRoomProvinceEntity chatRoomProvinceEntity) {
         ChatRoomProvinceDto chatRoomProvinceDto = ChatRoomProvinceDto.builder()
-                .id(chatRoomProvinceEntity.getId())
+                .chatRoomId(chatRoomProvinceEntity.getId())
                 .chatRoomName(chatRoomProvinceEntity.getChatRoomName())
                 .provinceId(chatRoomProvinceEntity.getProvinceId())
                 .provinceName(chatRoomProvinceEntity.getProvinceName())
