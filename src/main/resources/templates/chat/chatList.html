@@ -1,49 +1,95 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>채팅방 목록</title>
+    <link rel="stylesheet" href="/css/chat.css">
+    <link rel="stylesheet" href="/css/homePageStyle.css">
+
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 20px;
-        }
 
-        h1, h2, p {
-            color: #333;
-        }
 
-        #chatRoomList {
-            background-color: #fff;
-            border: 1px solid #ddd;
-            padding: 10px;
-            margin-top: 10px;
-        }
     </style>
     <!-- Include jQuery -->
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 </head>
 <body>
-<h1>채팅방 목록</h1>
+<!-- 네비게이션 바 -->
+<div id="headerContainer" th:replace="~{fragments/header :: header}"></div>
+<main>
 
-<!-- 채팅방 목록이 동적으로 표시될 곳 -->
-<div id="chatRoomList"></div>
+    <h1>채팅방 목록</h1>
+    <div id="chat-box">
+        <!-- 채팅방 목록이 동적으로 표시될 곳 -->
+        <div id="chatRoomList"></div>
 
-<script>
-    // 세션에서 로그인 이메일을 가져옴
-    const loginEmail = '<%= session.getAttribute("loginEmail") %>';
+        <div id="chat-container">
+            <ul id="messages"></ul>
+            <form id="chat-form">
+                <input type="text" id="message-input" placeholder="Type your message...">
+                <button type="submit">Send</button>
+            </form>
+            <div id="loader" style="display: none;">Loading...</div>
+        </div>
+    </div>
+
+</main>
+<!-- 푸터 -->
+<div id="footerContainer" th:replace="~{fragments/footer :: footer}"></div>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+v
+
+<script th:inline="javascript">
+    // Stomp 디버그 활성화
+    Stomp.debug = function (message) {
+        console.log(message);
+    };
+    // 페이지 로딩 시 자동으로 채팅방 목록을 가져와서 표시
+    $(document).ready(function () {
+        getChatList();
+    });
+    // 이전에 생성한 구독 ID를 저장할 변수 추가
+    let currentSubscriptionId = null;
+    let nowSubscribeChannel = '/topic/messages';
+    let chatRoomId = 0;
+    let allChatRoomId = 0;
+    let chatProvinceId = 0;
+    let chatDistrictId = 0;
+    let allFlag = -1;
+    const sessionEmail = [[${session.loginEmail}]];
+    const sessionName = [[${session.memberName}]];
+
+    const socket = new SockJS('/chat-websocket');
+    const stompClient = Stomp.over(socket);
+    let skip = 0;
+
+    const messagesContainer = $('#messages');
+
+    // 소켓에 연결하여 메세지를 받는 부분
+    stompClient.connect({}, function (frame) {
+        console.log('Connected: ' + frame);
+
+        stompClient.subscribe('/topic/messages', function (response) {
+            const message = JSON.parse(response.body);
+            displayMessage(message, 2);
+        });
+
+        // requestChatHistory();
+    });
 
     // 서버에서 채팅방 목록을 받아와서 표시하는 함수
     function getChatList() {
         $.ajax({
-            url: '/chat/chatList',
+            url: '/api/chat/chatList',
             type: 'GET',
             dataType: 'json',
             success: function (data) {
                 // 데이터를 받아온 후 동적으로 채팅방 목록을 표시하는 함수 호출
                 displayChatList(data);
+
             },
             error: function (error) {
                 console.error('Error fetching chat list:', error);
@@ -55,32 +101,203 @@
     function displayChatList(chatListDto) {
         const chatRoomListDiv = $('#chatRoomList');
 
-        // 1:1 채팅방 목록 표시
-        chatRoomListDiv.append('<h2>1:1 채팅방 목록</h2>');
-        $.each(chatListDto.chatRoomOneToOneDtoList, function (index, room) {
-            chatRoomListDiv.append(`<p>${room.chatRoomName}</p>`);
-        });
+        if (chatListDto === null) {
+            chatRoomListDiv.append('<h2>채팅방 목록이 없습니다.</h2>');
+        } else {
 
-        // // 1:1 채팅방의 최근 채팅 메시지 표시
-        // $.each(chatListDto.chatMessageOneToOneDtoList, function (index, message) {
-        //     chatRoomListDiv.append(`<p>${message.memberName}: ${message.message}</p>`);
-        // });
+            // 1:1 채팅방 목록 표시
 
-        // 광역시 채팅방 표시
-        chatRoomListDiv.append('<h2>광역시 채팅방</h2>');
-        chatRoomListDiv.append(`<p>${chatListDto.chatRoomProvinceDto.chatRoomName}</p>`);
-        // chatRoomListDiv.append(`<p>${chatListDto.chatMessageProvinceDto.memberName}: ${chatListDto.chatMessageProvinceDto.message}</p>`);
+            chatRoomListDiv.append('<h2>1:1 채팅방 목록</h2>');
+            if (chatListDto.chatRoomOneToOneDtoList !== null) {
 
-        // 지역구 채팅방 표시
-        chatRoomListDiv.append('<h2>지역구 채팅방</h2>');
-        chatRoomListDiv.append(`<p>${chatListDto.chatRoomDistrictDto.chatRoomName}</p>`);
-        // chatRoomListDiv.append(`<p>${chatListDto.chatMessageDistrictDto.memberName}: ${chatListDto.chatMessageDistrictDto.message}</p>`);
+                $.each(chatListDto.chatRoomOneToOneDtoList, function (index, room) {
+                    chatRoomListDiv.append(`<p class="room" onclick="clickRoom('${room.chatRoomId}', 0)">${room.chatRoomName}</p>`);
+                });
+
+            }
+
+            // 1:1 채팅방의 최근 채팅 메시지 표시
+            // $.each(chatListDto.chatMessageOneToOneDtoList, function (index, message) {
+            //     chatRoomListDiv.append(`<p>${message.memberName}: ${message.message}</p>`);
+            // });
+
+            // 광역시 채팅방 표시
+            chatRoomListDiv.append('<h2>광역시 채팅방</h2>');
+            chatProvinceId = chatListDto.chatRoomProvinceDto.provinceId;
+            chatRoomListDiv.append(`<p class="room" onclick="clickRoom('${chatListDto.chatRoomProvinceDto.provinceId}', 1)">${chatListDto.chatRoomProvinceDto.chatRoomName}</p>`);
+            chatRoomListDiv.append(`<p>${chatListDto.chatMessageProvinceDto.memberName}: ${chatListDto.chatMessageProvinceDto.message}</p>`);
+
+            chatRoomListDiv.append('<h2>지역구 채팅방</h2>');
+            chatDistrictId = chatListDto.chatRoomDistrictDto.districtId;
+            chatRoomListDiv.append(`<p class="room" onclick="clickRoom('${chatListDto.chatRoomDistrictDto.districtId}', 2)">${chatListDto.chatRoomDistrictDto.chatRoomName}</p>`);
+            // chatRoomListDiv.append(`<p>${chatListDto.chatMessageDistrictDto.memberName}: ${chatListDto.chatMessageDistrictDto.message}</p>`);
+
+        }
     }
 
-    // 페이지 로딩 시 자동으로 채팅방 목록을 가져와서 표시
-    $(document).ready(function () {
-        getChatList();
+    // 채팅방 클릭 시 실행되는 함수
+    function clickRoom(chatRoomId, flag) {
+        // 채팅방으로 이동하는 로직 추가
+        console.log(`채팅방 ID: ${chatRoomId}`);
+        console.log(flag);
+
+        // 기존 메시지 삭제
+        messagesContainer.empty();
+        allFlag = flag;
+
+        // 이전 구독을 취소
+        if (currentSubscriptionId) {
+            stompClient.unsubscribe(currentSubscriptionId);
+        }
+        // 웹소켓에 새로운 채팅방으로 연결
+        let channelPrefix;
+        if (flag === 0) {
+            channelPrefix = "/topic/messages/";
+            allChatRoomId = chatRoomId;
+        } else if (flag === 1) {
+            channelPrefix = "/topic/messages/ProId:";
+        } else {
+            channelPrefix = "/topic/messages/DisId:" + chatProvinceId + "_";
+        }
+        nowSubscribeChannel = channelPrefix + chatRoomId;
+
+        // 모든 unsubscribe 작업이 완료된 후에 새로운 채널로 SUBSCRIBE
+        const newSubscriptionId = stompClient.subscribe(nowSubscribeChannel, function (response) {
+            const message = JSON.parse(response.body);
+            displayMessage(message, 2);
+            // ID 기록
+        }).id;
+
+        // 현재 구독 ID 업데이트
+        currentSubscriptionId = newSubscriptionId;
+        // 현재 채널을 업데이트
+        // requestChatHistory 함수 호출, 완료될 때까지 기다림
+        requestChatHistory(chatRoomId, flag);
+
+    }
+
+    // 채팅 히스토리 요청 함수
+    function requestChatHistory(chatRoomId, flag) {
+        let apiUrl;
+        let params = {};
+
+        if (flag === 0) {
+            apiUrl = "/api/chat/history";
+            params.chatRoomId = chatRoomId;
+            allChatRoomId = chatRoomId;
+        } else if (flag === 1) {
+            apiUrl = "/api/chat/province/history";
+            params.provinceId = chatProvinceId;
+        } else {
+            apiUrl = "/api/chat/district/history";
+            params.provinceId = chatProvinceId;
+            params.districtId = chatDistrictId;
+        }
+
+        $.get(apiUrl, params, function (history) {
+            history.forEach(function (message) {
+                displayMessage(message, 1);
+            });
+        });
+    }
+
+
+    // Handle scroll events
+    $('#messages').on('scroll', function () {
+        if ($(this).scrollTop() === 0) {
+            // requestMoreChatHistory();
+        }
     });
+
+    function displayMessage(message, flag) {
+        const messagesContainer = $('#messages');
+        const isMyMessage = message.memberName === sessionName;
+        const messageElement = $('<li>').html(
+            '<strong>' + message.memberName + '</strong>' +
+            '<p>' + message.message + '</p>' +
+            '<small>' + new Date(message.messageCreatedTime).toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            }) + '</small>'
+        );
+        if (isMyMessage) {
+            messageElement.addClass('my-message');
+        }
+        if (flag === 1) {
+            messagesContainer.prepend(messageElement);
+        } else {
+            messagesContainer.append(messageElement);
+        }
+        // Scroll to the bottom to show the latest message
+        messagesContainer.scrollTop(messagesContainer.prop('scrollHeight'));
+    }
+
+
+    // 채팅 10개씩 추가 불러오기
+    // function requestMoreChatHistory(chatRoomId, flag) {
+    //     const loader = $('#loader');
+    //     loader.show();
+    //
+    //     $.get("/api/chat/history", {page: skip, size: 10}, function (history) {
+    //         if (history.length > 0) {
+    //             const messagesContainer = $('#messages');
+    //             const currentScrollHeight = messagesContainer.prop('scrollHeight');
+    //
+    //             history.forEach(function (message) {
+    //                 displayMessage(message, 1);
+    //             });
+    //
+    //             const newScrollHeight = messagesContainer.prop('scrollHeight');
+    //             const scrollDifference = newScrollHeight - currentScrollHeight;
+    //
+    //             // Scroll to maintain the previous scroll position
+    //             messagesContainer.scrollTop(scrollDifference);
+    //
+    //             skip += 1;
+    //         }
+    //
+    //         loader.hide();
+    //     });
+    // }
+
+    // 채팅 보내기
+    $('#chat-form').submit(function (event) {
+        event.preventDefault();
+
+        const messageInput = $('#message-input');
+        const message = messageInput.val();
+        messageInput.val('');
+
+        console.log("채팅 보내기");
+        console.log(allFlag);
+
+        let sendDestination;
+
+        if (allFlag === 0) {
+            sendDestination = `/app/chat/${allChatRoomId}`;
+            console.log("1대1 채팅 보내기");
+        } else if (allFlag === 1) {
+            sendDestination = "/app/chat/province";
+            console.log("광역시 채팅 보내기");
+        } else {
+            sendDestination = "/app/chat/district";
+            console.log("지역구 채팅 보내기");
+        }
+
+        stompClient.send(sendDestination, {}, JSON.stringify({
+            memberName: sessionName,
+            message: message,
+            memberEmail: sessionEmail,
+            chatRoomId: allChatRoomId,
+            provinceId: chatProvinceId,
+            districtId: chatDistrictId,
+        }));
+    });
+
 </script>
 </body>
 </html>
