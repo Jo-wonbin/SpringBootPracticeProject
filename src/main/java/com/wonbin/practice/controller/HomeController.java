@@ -1,6 +1,7 @@
 package com.wonbin.practice.controller;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -16,5 +17,13 @@ public class HomeController {
     @GetMapping("/chat")
     public String goHome() {
         return "chat";
+    }
+
+    @GetMapping("/chatList")
+    public String goChatList(HttpSession session) {
+        if (session != null && session.getAttribute("loginEmail") == null) {
+            return "login";
+        } else
+            return "chat/chatList";
     }
 }
