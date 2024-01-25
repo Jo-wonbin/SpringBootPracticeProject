@@ -1,7 +1,8 @@
 package com.wonbin.practice.repository.chat;
 
-import com.wonbin.practice.entity.chat.ChatMessageEntity;
 import com.wonbin.practice.entity.chat.ChatMessageOneToOneEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,5 +15,5 @@ public interface ChatMessageOneToOneRepository extends MongoRepository<ChatMessa
 
     ChatMessageOneToOneEntity findTop1ByChatRoomIdOrderByMessageCreatedTimeDesc(String chatRoomId);
 
-    List<ChatMessageOneToOneEntity> findAllByChatRoomIdOrderByMessageCreatedTimeDesc(String chatRoomId);
+    Page<ChatMessageOneToOneEntity> findAllByChatRoomIdOrderByMessageCreatedTimeDesc(String chatRoomId, PageRequest pageRequest);
 }

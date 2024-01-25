@@ -4,35 +4,36 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>채팅방 목록</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="/css/chat.css">
-    <link rel="stylesheet" href="/css/homePageStyle.css">
-
-    <style>
-
-
-    </style>
-    <!-- Include jQuery -->
 </head>
 <body>
 <!-- 네비게이션 바 -->
 <div id="headerContainer" th:replace="~{fragments/header :: header}"></div>
-<main>
+<!-- 메인 컨텐츠 -->
+<main class="container-fluid mt-4">
+    <div class="row">
+        <!-- 왼쪽에 채팅방 목록 -->
+        <div class="col-md-4">
+            <h1>채팅방 목록</h1>
+            <div id="chat-box">
+                <!-- 채팅방 목록이 동적으로 표시될 곳 -->
+                <div id="chatRoomList"></div>
+            </div>
+        </div>
 
-    <h1>채팅방 목록</h1>
-    <div id="chat-box">
-        <!-- 채팅방 목록이 동적으로 표시될 곳 -->
-        <div id="chatRoomList"></div>
-
-        <div id="chat-container">
-            <ul id="messages"></ul>
-            <form id="chat-form">
-                <input type="text" id="message-input" placeholder="Type your message...">
-                <button type="submit">Send</button>
-            </form>
-            <div id="loader" style="display: none;">Loading...</div>
+        <!-- 오른쪽에 채팅창 -->
+        <div class="col-md-8">
+            <div id="chat-container">
+                <ul id="messages"></ul>
+                <form id="chat-form">
+                    <input type="text" id="message-input" placeholder="Type your message..." required>
+                    <button type="submit">Send</button>
+                </form>
+                <div id="loader" style="display: none;">Loading...</div>
+            </div>
         </div>
     </div>
-
 </main>
 <!-- 푸터 -->
 <div id="footerContainer" th:replace="~{fragments/footer :: footer}"></div>
@@ -40,7 +41,6 @@
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
-v
 
 <script th:inline="javascript">
     // Stomp 디버그 활성화
@@ -76,26 +76,7 @@ v
             const message = JSON.parse(response.body);
             displayMessage(message, 2);
         });
-
-        // requestChatHistory();
     });
-
-    // 서버에서 채팅방 목록을 받아와서 표시하는 함수
-    function getChatList() {
-        $.ajax({
-            url: '/api/chat/chatList',
-            type: 'GET',
-            dataType: 'json',
-            success: function (data) {
-                // 데이터를 받아온 후 동적으로 채팅방 목록을 표시하는 함수 호출
-                displayChatList(data);
-
-            },
-            error: function (error) {
-                console.error('Error fetching chat list:', error);
-            }
-        });
-    }
 
     // 채팅방 목록을 표시하는 함수
     function displayChatList(chatListDto) {
@@ -106,7 +87,6 @@ v
         } else {
 
             // 1:1 채팅방 목록 표시
-
             chatRoomListDiv.append('<h2>1:1 채팅방 목록</h2>');
             if (chatListDto.chatRoomOneToOneDtoList !== null) {
 
@@ -125,7 +105,7 @@ v
             chatRoomListDiv.append('<h2>광역시 채팅방</h2>');
             chatProvinceId = chatListDto.chatRoomProvinceDto.provinceId;
             chatRoomListDiv.append(`<p class="room" onclick="clickRoom('${chatListDto.chatRoomProvinceDto.provinceId}', 1)">${chatListDto.chatRoomProvinceDto.chatRoomName}</p>`);
-            chatRoomListDiv.append(`<p>${chatListDto.chatMessageProvinceDto.memberName}: ${chatListDto.chatMessageProvinceDto.message}</p>`);
+            // chatRoomListDiv.append(`<p>${chatListDto.chatMessageProvinceDto.memberName}: ${chatListDto.chatMessageProvinceDto.message}</p>`);
 
             chatRoomListDiv.append('<h2>지역구 채팅방</h2>');
             chatDistrictId = chatListDto.chatRoomDistrictDto.districtId;
@@ -176,94 +156,6 @@ v
 
     }
 
-    // 채팅 히스토리 요청 함수
-    function requestChatHistory(chatRoomId, flag) {
-        let apiUrl;
-        let params = {};
-
-        if (flag === 0) {
-            apiUrl = "/api/chat/history";
-            params.chatRoomId = chatRoomId;
-            allChatRoomId = chatRoomId;
-        } else if (flag === 1) {
-            apiUrl = "/api/chat/province/history";
-            params.provinceId = chatProvinceId;
-        } else {
-            apiUrl = "/api/chat/district/history";
-            params.provinceId = chatProvinceId;
-            params.districtId = chatDistrictId;
-        }
-
-        $.get(apiUrl, params, function (history) {
-            history.forEach(function (message) {
-                displayMessage(message, 1);
-            });
-        });
-    }
-
-
-    // Handle scroll events
-    $('#messages').on('scroll', function () {
-        if ($(this).scrollTop() === 0) {
-            // requestMoreChatHistory();
-        }
-    });
-
-    function displayMessage(message, flag) {
-        const messagesContainer = $('#messages');
-        const isMyMessage = message.memberName === sessionName;
-        const messageElement = $('<li>').html(
-            '<strong>' + message.memberName + '</strong>' +
-            '<p>' + message.message + '</p>' +
-            '<small>' + new Date(message.messageCreatedTime).toLocaleString('ko-KR', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit',
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            }) + '</small>'
-        );
-        if (isMyMessage) {
-            messageElement.addClass('my-message');
-        }
-        if (flag === 1) {
-            messagesContainer.prepend(messageElement);
-        } else {
-            messagesContainer.append(messageElement);
-        }
-        // Scroll to the bottom to show the latest message
-        messagesContainer.scrollTop(messagesContainer.prop('scrollHeight'));
-    }
-
-
-    // 채팅 10개씩 추가 불러오기
-    // function requestMoreChatHistory(chatRoomId, flag) {
-    //     const loader = $('#loader');
-    //     loader.show();
-    //
-    //     $.get("/api/chat/history", {page: skip, size: 10}, function (history) {
-    //         if (history.length > 0) {
-    //             const messagesContainer = $('#messages');
-    //             const currentScrollHeight = messagesContainer.prop('scrollHeight');
-    //
-    //             history.forEach(function (message) {
-    //                 displayMessage(message, 1);
-    //             });
-    //
-    //             const newScrollHeight = messagesContainer.prop('scrollHeight');
-    //             const scrollDifference = newScrollHeight - currentScrollHeight;
-    //
-    //             // Scroll to maintain the previous scroll position
-    //             messagesContainer.scrollTop(scrollDifference);
-    //
-    //             skip += 1;
-    //         }
-    //
-    //         loader.hide();
-    //     });
-    // }
-
     // 채팅 보내기
     $('#chat-form').submit(function (event) {
         event.preventDefault();
@@ -297,6 +189,132 @@ v
             districtId: chatDistrictId,
         }));
     });
+
+    // 채팅 히스토리 요청 함수
+    function requestChatHistory(chatRoomId, flag) {
+        let apiUrl;
+        let params = {};
+
+        if (flag === 0) {
+            apiUrl = "/api/chat/history";
+            params.chatRoomId = chatRoomId;
+            allChatRoomId = chatRoomId;
+        } else if (flag === 1) {
+            apiUrl = "/api/chat/province/history";
+            params.provinceId = chatProvinceId;
+        } else {
+            apiUrl = "/api/chat/district/history";
+            params.provinceId = chatProvinceId;
+            params.districtId = chatDistrictId;
+        }
+        skip = 0;
+        params.skip = skip;
+        params.size = 10;
+        $.get(apiUrl, params, function (history) {
+            if (history.length > 0) {
+                history.forEach(function (message) {
+                    displayMessage(message, 1);
+                });
+            }
+        });
+    }
+
+    // 채팅 10개씩 추가 불러오기
+    function requestMoreChatHistory(chatRoomId, flag) {
+        const loader = $('#loader');
+        loader.show();
+
+        let apiUrl;
+        let params = {};
+
+        if (flag === 0) {
+            apiUrl = "/api/chat/history";
+            params.chatRoomId = chatRoomId;
+            allChatRoomId = chatRoomId;
+        } else if (flag === 1) {
+            apiUrl = "/api/chat/province/history";
+            params.provinceId = chatProvinceId;
+            allChatRoomId = chatProvinceId;
+        } else {
+            apiUrl = "/api/chat/district/history";
+            params.provinceId = chatProvinceId;
+            params.districtId = chatDistrictId;
+            allChatRoomId = chatProvinceId;
+        }
+        params.page = skip;
+        params.size = 10;
+
+        $.get(apiUrl, params, function (history) {
+            if (history.length > 0) {
+                const messagesContainer = $('#messages');
+                const currentScrollHeight = messagesContainer.prop('scrollHeight');
+
+                history.forEach(function (message) {
+                    displayMessage(message, 1);
+                });
+
+                const newScrollHeight = messagesContainer.prop('scrollHeight');
+                const scrollDifference = newScrollHeight - currentScrollHeight;
+
+                // Scroll to maintain the previous scroll position
+                messagesContainer.scrollTop(scrollDifference);
+
+                skip += 1;
+            }
+            loader.hide();
+        });
+    }
+
+    // Handle scroll events
+    $('#messages').on('scroll', function () {
+        if ($(this).scrollTop() === 0) {
+            requestMoreChatHistory(allChatRoomId, allFlag);
+        }
+    });
+
+    function displayMessage(message, flag) {
+        const messagesContainer = $('#messages');
+        const isMyMessage = message.memberName.trim() === sessionName.trim();
+        const messageElement = $('<li>').html(
+            '<strong>' + message.memberName + '</strong>' +
+            '<p>' + message.message + '</p>' +
+            '<small>' + new Date(message.messageCreatedTime).toLocaleString('ko-KR', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            }) + '</small>'
+        );
+        if (isMyMessage) {
+            messageElement.addClass('my-message');
+        }
+        if (flag === 1) {
+            messagesContainer.prepend(messageElement);
+        } else {
+            messagesContainer.append(messageElement);
+        }
+
+        // Scroll to the bottom to show the latest message
+        messagesContainer.scrollTop(messagesContainer.prop('scrollHeight'));
+    }
+
+    // 서버에서 채팅방 목록을 받아와서 표시하는 함수
+    function getChatList() {
+        $.ajax({
+            url: '/api/chat/chatList',
+            type: 'GET',
+            dataType: 'json',
+            success: function (data) {
+                // 데이터를 받아온 후 동적으로 채팅방 목록을 표시하는 함수 호출
+                displayChatList(data);
+            },
+            error: function (error) {
+                console.error('Error fetching chat list:', error);
+            }
+        });
+    }
 
 </script>
 </body>

@@ -35,25 +35,15 @@ public class ChatRoomController {
         return new ResponseEntity<>("User not authenticated", HttpStatus.UNAUTHORIZED);
     }
 
-    //    @GetMapping("/history")
-//    public ResponseEntity<List<ChatMessageDto>> getChatHistory(
-//            @RequestParam(value = "page", defaultValue = "0") int page,
-//            @RequestParam(value = "size", defaultValue = "10") int size) {
-//
-//        try {
-//            List<ChatMessageDto> chatHistory = chatService.getChatHistory(page, size);
-//            return new ResponseEntity<>(chatHistory, HttpStatus.OK);
-//        } catch (Exception e) {
-//            // Handle exceptions and return an appropriate response
-//            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-//        }
-//    }
     @GetMapping("/history")
     public ResponseEntity<List<ChatMessageOneToOneDto>> getChatHistory(
-            @RequestParam("chatRoomId") String chatRoomId) {
+            @RequestParam("chatRoomId") String chatRoomId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
 
         try {
-            List<ChatMessageOneToOneDto> chatHistory = chatService.getChatOneToOneHistory(chatRoomId);
+            List<ChatMessageOneToOneDto> chatHistory = chatService.getChatOneToOneHistory(chatRoomId, page, size);
             return new ResponseEntity<>(chatHistory, HttpStatus.OK);
         } catch (Exception e) {
             // Handle exceptions and return an appropriate response
@@ -63,10 +53,13 @@ public class ChatRoomController {
 
     @GetMapping("/province/history")
     public ResponseEntity<List<ChatMessageProvinceDto>> getChatProvinceHistory(
-            @RequestParam("provinceId") Long provinceId) {
+            @RequestParam("provinceId") Long provinceId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
+    ) {
 
         try {
-            List<ChatMessageProvinceDto> chatHistory = chatService.getChatProvinceHistory(provinceId);
+            List<ChatMessageProvinceDto> chatHistory = chatService.getChatProvinceHistory(provinceId, page, size);
             return new ResponseEntity<>(chatHistory, HttpStatus.OK);
         } catch (Exception e) {
             // Handle exceptions and return an appropriate response
@@ -77,11 +70,13 @@ public class ChatRoomController {
     @GetMapping("/district/history")
     public ResponseEntity<List<ChatMessageDistrictDto>> getChatDistrictHistory(
             @RequestParam("provinceId") Long provinceId,
-            @RequestParam("districtId") Long districtId
+            @RequestParam("districtId") Long districtId,
+            @RequestParam(value = "page", defaultValue = "0") int page,
+            @RequestParam(value = "size", defaultValue = "10") int size
     ) {
 
         try {
-            List<ChatMessageDistrictDto> chatHistory = chatService.getChatDistrictHistory(provinceId, districtId);
+            List<ChatMessageDistrictDto> chatHistory = chatService.getChatDistrictHistory(provinceId, districtId, page, size);
             return new ResponseEntity<>(chatHistory, HttpStatus.OK);
         } catch (Exception e) {
             // Handle exceptions and return an appropriate response
