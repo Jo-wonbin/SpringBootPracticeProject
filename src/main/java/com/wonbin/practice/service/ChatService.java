@@ -162,9 +162,10 @@ public class ChatService {
 
     }
 
-    public List<ChatMessageOneToOneDto> getChatOneToOneHistory(String chatRoomId) {
-        List<ChatMessageOneToOneEntity> chatMessageOneToOneEntityList = chatMessageOneToOneRepository
-                .findAllByChatRoomIdOrderByMessageCreatedTimeDesc(chatRoomId);
+    public List<ChatMessageOneToOneDto> getChatOneToOneHistory(String chatRoomId, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<ChatMessageOneToOneEntity> chatMessageOneToOneEntityList = chatMessageOneToOneRepository.findAllByChatRoomIdOrderByMessageCreatedTimeDesc(chatRoomId, pageRequest);
+
         List<ChatMessageOneToOneDto> chatMessageOneToOneDtoList = new ArrayList<>();
         for (ChatMessageOneToOneEntity chatMessageOneToOneEntity : chatMessageOneToOneEntityList) {
             chatMessageOneToOneDtoList.add(ChatMessageOneToOneDto.toChatMessageOneToOneDto(chatMessageOneToOneEntity));
@@ -172,9 +173,10 @@ public class ChatService {
         return chatMessageOneToOneDtoList;
     }
 
-    public List<ChatMessageProvinceDto> getChatProvinceHistory(Long provinceId) {
-        List<ChatMessageProvinceEntity> chatMessageProvinceEntities = chatMessageProvinceRepository
-                .findAllByProvinceIdOrderByMessageCreatedTimeDesc(provinceId);
+    public List<ChatMessageProvinceDto> getChatProvinceHistory(Long provinceId, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<ChatMessageProvinceEntity> chatMessageProvinceEntities = chatMessageProvinceRepository.findAllByProvinceIdOrderByMessageCreatedTimeDesc(provinceId, pageRequest);
+
         List<ChatMessageProvinceDto> chatMessageProvinceDtoList = new ArrayList<>();
         for (ChatMessageProvinceEntity chatMessageProvinceEntity : chatMessageProvinceEntities) {
             chatMessageProvinceDtoList.add(ChatMessageProvinceDto.toChatMessageProvinceDto(chatMessageProvinceEntity));
@@ -182,9 +184,10 @@ public class ChatService {
         return chatMessageProvinceDtoList;
     }
 
-    public List<ChatMessageDistrictDto> getChatDistrictHistory(Long provinceId, Long districtId) {
-        List<ChatMessageDistrictEntity> chatMessageDistrictEntities = chatMessageDistrictRepository
-                .findAllByProvinceIdAndDistrictIdOrderByMessageCreatedTimeDesc(provinceId, districtId);
+    public List<ChatMessageDistrictDto> getChatDistrictHistory(Long provinceId, Long districtId, int page, int size) {
+        PageRequest pageRequest = PageRequest.of(page, size);
+        Page<ChatMessageDistrictEntity> chatMessageDistrictEntities = chatMessageDistrictRepository.findAllByProvinceIdAndDistrictIdOrderByMessageCreatedTimeDesc(provinceId, districtId, pageRequest);
+
         List<ChatMessageDistrictDto> chatMessageDistrictDtoList = new ArrayList<>();
         for (ChatMessageDistrictEntity chatMessageDistrictEntity : chatMessageDistrictEntities) {
             chatMessageDistrictDtoList.add(ChatMessageDistrictDto.toChatMessageDistrictDto(chatMessageDistrictEntity));
