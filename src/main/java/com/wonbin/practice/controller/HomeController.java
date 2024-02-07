@@ -1,5 +1,6 @@
 package com.wonbin.practice.controller;
 
+import com.wonbin.practice.aspect.Authenticated;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.stereotype.Controller;
@@ -20,10 +21,8 @@ public class HomeController {
     }
 
     @GetMapping("/chatList")
-    public String goChatList(HttpSession session) {
-        if (session != null && session.getAttribute("loginEmail") == null) {
-            return "login";
-        } else
-            return "chat/chatList";
+    @Authenticated
+    public String goChatList() {
+        return "chat/chatList";
     }
 }
