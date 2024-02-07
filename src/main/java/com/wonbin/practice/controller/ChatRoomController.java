@@ -1,5 +1,6 @@
 package com.wonbin.practice.controller;
 
+import com.wonbin.practice.aspect.Authenticated;
 import com.wonbin.practice.dto.chat.*;
 import com.wonbin.practice.service.ChatService;
 import jakarta.servlet.http.HttpSession;
@@ -22,6 +23,7 @@ public class ChatRoomController {
     private final ChatService chatService;
 
     @GetMapping("/oneToOne/{targetId}")
+    @Authenticated
     public ResponseEntity findOneToOneChatRoom(@PathVariable Long targetId, HttpSession session) {
         String email = (String) session.getAttribute("loginEmail");
         if (email != null) {
@@ -36,6 +38,7 @@ public class ChatRoomController {
     }
 
     @GetMapping("/history")
+    @Authenticated
     public ResponseEntity<List<ChatMessageOneToOneDto>> getChatHistory(
             @RequestParam("chatRoomId") String chatRoomId,
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -52,6 +55,7 @@ public class ChatRoomController {
     }
 
     @GetMapping("/province/history")
+    @Authenticated
     public ResponseEntity<List<ChatMessageProvinceDto>> getChatProvinceHistory(
             @RequestParam("provinceId") Long provinceId,
             @RequestParam(value = "page", defaultValue = "0") int page,
@@ -68,6 +72,7 @@ public class ChatRoomController {
     }
 
     @GetMapping("/district/history")
+    @Authenticated
     public ResponseEntity<List<ChatMessageDistrictDto>> getChatDistrictHistory(
             @RequestParam("provinceId") Long provinceId,
             @RequestParam("districtId") Long districtId,
@@ -85,14 +90,10 @@ public class ChatRoomController {
     }
 
     @GetMapping("/chatList")
+    @Authenticated
     public ResponseEntity<ChatListDto> getChatList(HttpSession session) {
         System.out.println("ChatRoomController.getChatList");
         String loginEmail = (String) session.getAttribute("loginEmail");
-
-        if (loginEmail == null) {
-            // 세션에서 로그인 이메일이 없는 경우 처리
-            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
-        }
 
         ChatListDto chatListDto = chatService.findChatList(loginEmail);
 

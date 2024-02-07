@@ -1,5 +1,6 @@
 package com.wonbin.practice.controller;
 
+import com.wonbin.practice.aspect.Authenticated;
 import com.wonbin.practice.dto.CommentDto;
 import com.wonbin.practice.dto.CommentPagingDto;
 import com.wonbin.practice.dto.MemberDto;
@@ -29,6 +30,7 @@ public class CommentController {
     private final MemberService memberService;
 
     @GetMapping("/read/{commentId}")
+    @Authenticated
     public ResponseEntity findById(@PathVariable Long commentId, HttpSession session) {
         String email = (String) session.getAttribute("loginEmail");
         MemberDto memberDto = memberService.findByMemberEmail(email);
@@ -79,6 +81,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 저장", description = "댓글을 저장합니다.")
     @PostMapping("/save/{boardId}")
+    @Authenticated
     public ResponseEntity save(@PathVariable Long boardId, @ModelAttribute CommentDto commentDto, HttpSession session) {
         System.out.println("commentDto = " + commentDto);
         commentDto.setBoardId(boardId);
@@ -96,6 +99,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 삭제", description = "댓글을 삭제합니다.")
     @GetMapping("/delete/{id}")
+    @Authenticated
     public ResponseEntity delete(@PathVariable Long id, HttpSession session) {
         String email = (String) session.getAttribute("loginEmail");
         MemberDto memberDto = memberService.findByMemberEmail(email);
@@ -112,6 +116,7 @@ public class CommentController {
 
     @Operation(summary = "댓글 수정", description = "댓글을 수정합니다.")
     @PostMapping("/update/{boardId}")
+    @Authenticated
     public ResponseEntity update(@ModelAttribute CommentDto commentDto, @PathVariable Long boardId, HttpSession session) {
         System.out.println(commentDto.toString());
         String email = (String) session.getAttribute("loginEmail");
