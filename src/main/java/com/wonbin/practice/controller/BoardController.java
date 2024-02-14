@@ -1,5 +1,6 @@
 package com.wonbin.practice.controller;
 
+import com.wonbin.practice.aspect.Authenticated;
 import com.wonbin.practice.dto.BoardDto;
 import com.wonbin.practice.dto.MemberDto;
 import com.wonbin.practice.dto.BoardPagingDto;
@@ -30,13 +31,9 @@ public class BoardController {
     private final MemberService memberService;
 
     @GetMapping("/boardWrite")
+    @Authenticated
     public String goToBoardWriteForm(HttpSession session) {
-        if (session != null && session.getAttribute("loginEmail") != null) {
-            return "boardWrite";
-        } else {
-            return "login";
-        }
-
+        return "boardWrite";
     }
 
     @Operation(summary = "게시글 저장", description = "게시글을 form으로 입력받고 성공 여부 출력")
@@ -82,6 +79,7 @@ public class BoardController {
          */
     @Operation(summary = "게시글 수정 창 이동", description = "게시글을 수정하기 위한 창으로 이동합니다.")
     @GetMapping("/update/{id}")
+    @Authenticated
     public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
         String email = (String) session.getAttribute("loginEmail");
         MemberDto memberDto = memberService.findByMemberEmail(email);
@@ -97,6 +95,7 @@ public class BoardController {
 
     @Operation(summary = "게시글 수정", description = "게시글을 수정합니다.")
     @PostMapping("/update/{id}")
+    @Authenticated
     public ResponseEntity update(@PathVariable Long id, @ModelAttribute BoardDto boardDto, HttpSession session) throws IOException {
         String email = (String) session.getAttribute("loginEmail");
         MemberDto memberDto = memberService.findByMemberEmail(email);
@@ -114,6 +113,7 @@ public class BoardController {
     }
 
     @PostMapping("/delete/file")
+    @Authenticated
     public ResponseEntity deleteFiles(@RequestParam("deleteFile") String deleteFile, HttpSession session) {
         System.out.println("deleteFile = " + deleteFile);
         String email = (String) session.getAttribute("loginEmail");
@@ -131,6 +131,7 @@ public class BoardController {
 
     @Operation(summary = "게시글 삭제", description = "게시글을 삭제합니다.")
     @GetMapping("/delete/{id}")
+    @Authenticated
     public ResponseEntity delete(@PathVariable Long id, HttpSession session) {
         String email = (String) session.getAttribute("loginEmail");
         MemberDto memberDto = memberService.findByMemberEmail(email);
