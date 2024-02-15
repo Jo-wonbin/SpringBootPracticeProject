@@ -241,7 +241,7 @@
             params.districtId = chatDistrictId;
             allChatRoomId = chatProvinceId;
         }
-        params.page = skip;
+        params.page = skip + 1;
         params.size = 10;
 
         $.get(apiUrl, params, function (history) {
