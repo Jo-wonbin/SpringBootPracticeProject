@@ -45,8 +45,8 @@ public class BoardService {
     private final ProvinceRepository provinceRepository;
     private final DistrictRepository districtRepository;
 
-    private final String savePath = "C:/Users/user/Desktop/SpringBoot/image/";
-    //    private final String savePath = "/etc/picture/";
+    //    private final String savePath = "C:/Users/user/Desktop/SpringBoot/image/";
+    private final String savePath = "/etc/picture/";
     private final int scaledWidth = 300;
     private final int scaledHeight = 300;
 
