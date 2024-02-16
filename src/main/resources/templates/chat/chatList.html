@@ -217,6 +217,7 @@
                 });
             }
         });
+        skip += 1;
     }
 
     // 채팅 10개씩 추가 불러오기
@@ -241,7 +242,7 @@
             params.districtId = chatDistrictId;
             allChatRoomId = chatProvinceId;
         }
-        params.page = skip + 1;
+        params.page = skip;
         params.size = 10;
 
         $.get(apiUrl, params, function (history) {
