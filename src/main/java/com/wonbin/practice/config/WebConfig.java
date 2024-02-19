@@ -26,7 +26,16 @@ public class WebConfig implements WebMvcConfigurer {
             "ws://34.64.195.226",
             "wss://34.64.195.226",
             "ws://34.64.195.226:8080",
-            "wss://34.64.195.226:8080"
+            "wss://34.64.195.226:8080",
+            "http://wooridongnae.store",
+            "https://wooridongnae.store",
+            "http://wooridongnae.store:8080",
+            "https://wooridongnae.store:8080",
+            "ws://wooridongnae.store",
+            "wss://wooridongnae.store",
+            "ws://wooridongnae.store:8080",
+            "wss://wooridongnae.store:8080"
+
     );
 
     private final String resourcePath = "/upload/**";
