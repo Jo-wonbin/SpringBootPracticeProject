@@ -9,13 +9,13 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    @Value("${cors.allowed-origins}")
+    @Value("${spring.cors.allowed-origins}") // 변경된 부분
     private String[] allowedOrigins;
 
-    @Value("${resource-path}")
+    @Value("${spring.resource-path}") // 변경된 부분
     private String resourcePath;
 
-    @Value("${save-path}")
+    @Value("${spring.save-path}") // 변경된 부분
     private String savePath;
 
     @Override
