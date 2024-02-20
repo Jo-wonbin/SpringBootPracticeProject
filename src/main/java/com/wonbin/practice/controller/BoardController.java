@@ -10,6 +10,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -27,24 +29,28 @@ import java.io.IOException;
 @RequestMapping("/board")
 public class BoardController {
 
+    private static final Logger logger = LoggerFactory.getLogger(BoardController.class);
     private final BoardService boardService;
     private final MemberService memberService;
 
     @GetMapping("/boardWrite")
     @Authenticated
     public String goToBoardWriteForm(HttpSession session) {
+        logger.info("goToBoardWriteForm");
         return "boardWrite";
     }
 
     @Operation(summary = "게시글 저장", description = "게시글을 form으로 입력받고 성공 여부 출력")
     @PostMapping("/save")
     public ResponseEntity<String> save(@ModelAttribute BoardDto boardDto, HttpSession session) throws IOException {
-        System.out.println("boardDTO = " + boardDto);
+        logger.info("save board");
         String email = (String) session.getAttribute("loginEmail");
         Long save = boardService.save(boardDto, email);
         if (save == 1L) {
+            logger.info("save board success");
             return new ResponseEntity<>("게시글 작성 성공", HttpStatus.OK);
         } else {
+            logger.error("save board failed");
             return new ResponseEntity<>("게시글 작성 실패", HttpStatus.BAD_REQUEST);
         }
     }
@@ -52,7 +58,7 @@ public class BoardController {
     @Operation(summary = "게시글 목록 이동", description = "게시글을 목록 이동")
     @GetMapping("")
     public String goToBoardList(Model model) {
-        System.out.println("BoardController.goToBoardList");
+        logger.info("goToBoardList");
         return "board";
     }
 
@@ -65,6 +71,7 @@ public class BoardController {
             2. 게시글 데이터 출력
             3. 게시글 댓글 목록 출력
          */
+        logger.info("findById for boardDetail");
         boardService.updateHits(id);
         BoardDto boardDto = boardService.findById(id);
         model.addAttribute("board", boardDto);
@@ -81,14 +88,16 @@ public class BoardController {
     @GetMapping("/update/{id}")
     @Authenticated
     public String updateForm(@PathVariable Long id, Model model, HttpSession session) {
+        logger.info("goToUpdateBoard");
         String email = (String) session.getAttribute("loginEmail");
         MemberDto memberDto = memberService.findByMemberEmail(email);
         if (memberDto != null) {
+            logger.info("goToUpdateBoard success");
             BoardDto boardDto = boardService.findById(id);
-            System.out.println(boardDto.toString());
             model.addAttribute("board", boardDto);
             return "boardUpdate";
         } else {
+            logger.info("goToUpdateBoard failed");
             return "redirect:/board/" + id;
         }
     }
@@ -97,17 +106,21 @@ public class BoardController {
     @PostMapping("/update/{id}")
     @Authenticated
     public ResponseEntity update(@PathVariable Long id, @ModelAttribute BoardDto boardDto, HttpSession session) throws IOException {
+        logger.info("updateBoard");
         String email = (String) session.getAttribute("loginEmail");
         MemberDto memberDto = memberService.findByMemberEmail(email);
         if (memberDto != null) {
             Long update = boardService.update(boardDto, id);
 
             if (update == 1L) {
+                logger.info("updateBoard success");
                 return new ResponseEntity<>("게시글 수정 성공", HttpStatus.OK);
             } else {
+                logger.info("updateBoard failed");
                 return new ResponseEntity<>("게시글 수정 실패", HttpStatus.BAD_REQUEST);
             }
         } else {
+            logger.info("do login");
             return new ResponseEntity<>("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
         }
     }
@@ -115,16 +128,20 @@ public class BoardController {
     @PostMapping("/delete/file")
     @Authenticated
     public ResponseEntity deleteFiles(@RequestParam("deleteFile") String deleteFile, HttpSession session) {
-        System.out.println("deleteFile = " + deleteFile);
+        logger.info("delete images");
         String email = (String) session.getAttribute("loginEmail");
         MemberDto memberDto = memberService.findByMemberEmail(email);
         if (memberDto != null) {
             boolean success = boardService.deleteFiles(deleteFile);
-            if (success)
+            if (success){
+                logger.info("delete images success");
                 return new ResponseEntity<>("파일 삭제 성공", HttpStatus.OK);
-            else
+            } else{
+                logger.info("delete images failed");
                 return new ResponseEntity<>("파일 삭제 실패", HttpStatus.BAD_REQUEST);
+            }
         } else {
+            logger.info("do login");
             return new ResponseEntity<>("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
         }
     }
@@ -133,16 +150,20 @@ public class BoardController {
     @GetMapping("/delete/{id}")
     @Authenticated
     public ResponseEntity delete(@PathVariable Long id, HttpSession session) {
+        logger.info("delete board");
         String email = (String) session.getAttribute("loginEmail");
         MemberDto memberDto = memberService.findByMemberEmail(email);
         if (memberDto != null) {
             Long delete = boardService.deleteById(id);
             if (delete == 1L) {
+                logger.info("delete board success");
                 return new ResponseEntity<>("게시글 삭제 성공", HttpStatus.OK);
             } else {
+                logger.info("delete board failed");
                 return new ResponseEntity<>("게시글 삭제 실패", HttpStatus.BAD_REQUEST);
             }
         } else {
+            logger.info("do login");
             return new ResponseEntity<>("로그인이 필요합니다.", HttpStatus.UNAUTHORIZED);
         }
     }
@@ -150,21 +171,21 @@ public class BoardController {
     @Operation(summary = "모든 게시글 페이징 조회", description = "모든 게시글을 페이징하여 조회합니다.")
     @GetMapping("/paging")
     public ResponseEntity paging(@PageableDefault(page = 1) Pageable pageable) {
-        System.out.println("BoardController.paging");
+        logger.info("boardPaging");
         return handlePagingRequest(pageable, null, false);
     }
 
     @Operation(summary = "광역시 게시글 페이징 조회", description = "광역시 게시글을 페이징하여 조회합니다.")
     @GetMapping("/province/{id}/paging")
     public ResponseEntity provincePaging(@PageableDefault(page = 1) Pageable pageable, @PathVariable Long id) {
-        System.out.println("BoardController.provincePaging");
+        logger.info("provinceBoardPaging");
         return handlePagingRequest(pageable, id, true);
     }
 
     @Operation(summary = "지역구 게시글 페이징 조회", description = "지역구 게시글을 페이징하여 조회합니다.")
     @GetMapping("/district/{id}/paging")
     public ResponseEntity districtPaging(@PageableDefault(page = 1) Pageable pageable, @PathVariable Long id) {
-        System.out.println("BoardController.districtPaging");
+        logger.info("districtBoardPaging");
         return handlePagingRequest(pageable, id, false);
     }
 
