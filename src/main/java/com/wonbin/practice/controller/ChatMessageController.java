@@ -5,6 +5,8 @@ import com.wonbin.practice.dto.chat.ChatMessageOneToOneDto;
 import com.wonbin.practice.dto.chat.ChatMessageProvinceDto;
 import com.wonbin.practice.service.ChatService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -21,7 +23,7 @@ import java.util.Date;
 @Controller
 @RequiredArgsConstructor
 public class ChatMessageController {
-
+    private static final Logger logger = LoggerFactory.getLogger(ChatMessageController.class);
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatService chatService;
 
@@ -29,6 +31,7 @@ public class ChatMessageController {
     @MessageMapping("/chat/{chatRoomId}")
     public void processOneToOneMessage(@Payload ChatMessageOneToOneDto chatMessageOneToOneDto,
                                        @DestinationVariable String chatRoomId) {
+        logger.info("oneToOneChatting {}", chatRoomId);
         chatMessageOneToOneDto.setMessageCreatedTime(new Date());
         chatService.saveOneToOneMessage(chatMessageOneToOneDto);
 
@@ -39,6 +42,7 @@ public class ChatMessageController {
     // "/app/chat/province" 요청으로 온 메세지
     @MessageMapping("/chat/province")
     public void myProvinceMessage(@Payload ChatMessageProvinceDto chatMessageProvinceDto) {
+        logger.info("province {} Chatting", chatMessageProvinceDto.getProvinceId());
         chatMessageProvinceDto.setMessageCreatedTime(new Date());
         chatService.saveProvinceMessage(chatMessageProvinceDto);
         String toClient = "/topic/messages/ProId:" + chatMessageProvinceDto.getProvinceId();
@@ -50,6 +54,7 @@ public class ChatMessageController {
     // "/app/chat/district" 요청으로 온 메세지
     @MessageMapping("/chat/district")
     public void myDistrictMessage(@Payload ChatMessageDistrictDto chatMessageDistrictDto) {
+        logger.info("district {} Chatting", chatMessageDistrictDto.getDistrictId());
         chatMessageDistrictDto.setMessageCreatedTime(new Date());
         chatService.saveDistrictMessage(chatMessageDistrictDto);
         String toClient = "/topic/messages/DisId:" + chatMessageDistrictDto.getProvinceId() + "_" + chatMessageDistrictDto.getDistrictId();
