@@ -62,8 +62,8 @@
     const sessionEmail = [[${session.loginEmail}]];
     const sessionName = [[${session.memberName}]];
 
-    // const socket = new WebSocket('wss://wooridongnae.store/chat-websocket');
-    const socket = new WebSocket('ws://wooridongnae.store/chat-websocket');
+    const socket = new WebSocket('wss://wooridongnae.store/chat-websocket');
+    // const socket = new WebSocket('ws://wooridongnae.store/chat-websocket');
     // const socket = new SockJS('/chat-websocket');
     const stompClient = Stomp.over(socket);
     let skip = 0;
