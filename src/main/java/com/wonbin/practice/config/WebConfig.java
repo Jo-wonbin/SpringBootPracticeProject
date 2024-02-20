@@ -52,5 +52,13 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedOrigins(allowedOrigins.toArray(new String[0]))
                 .allowedMethods("GET", "POST", "PUT", "DELETE")
                 .allowCredentials(true);
+
+        // /chat-websocket 경로에 대한 CORS 설정 추가
+        registry.addMapping("/chat-websocket/**")
+                .allowedOrigins(allowedOrigins.toArray(new String[0]))
+                .allowedMethods("GET", "POST", "PUT", "DELETE")
+                .allowedHeaders("*")
+                .exposedHeaders("Access-Control-Allow-Origin", "Access-Control-Allow-Credentials")
+                .allowCredentials(true);
     }
 }
