@@ -5,7 +5,9 @@ import com.wonbin.practice.dto.MemberDto;
 import com.wonbin.practice.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -141,9 +143,19 @@ public class MemberController {
 
     @Operation(summary = "로그아웃 후 세션 삭제")
     @GetMapping("/logout")
-    public String logout(HttpSession httpSession) {
+    public String logout(HttpSession httpSession, HttpServletRequest request, HttpServletResponse response) {
         logger.info("member logout");
         httpSession.invalidate();
+
+        // 쿠키 삭제
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                cookie.setMaxAge(0); // 쿠키 만료 시간을 0으로 설정하여 삭제
+                cookie.setPath("/"); // 쿠키의 경로 설정
+                response.addCookie(cookie); // 응답에 쿠키 추가
+            }
+        }
         return "homepage";
     }
 
