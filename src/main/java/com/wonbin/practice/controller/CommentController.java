@@ -8,6 +8,7 @@ import com.wonbin.practice.service.CommentService;
 import com.wonbin.practice.service.MemberService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -95,11 +96,11 @@ public class CommentController {
 
     @Operation(summary = "댓글 저장", description = "댓글을 저장합니다.")
     @PostMapping("/save/{boardId}")
-    @Authenticated
-    public ResponseEntity save(@PathVariable Long boardId, @ModelAttribute CommentDto commentDto, HttpSession session) {
+    public ResponseEntity save(@PathVariable Long boardId, @ModelAttribute CommentDto commentDto, HttpSession session, HttpServletRequest request) {
         logger.info("comment save");
         commentDto.setBoardId(boardId);
         String email = (String) session.getAttribute("loginEmail");
+        session.setAttribute("prevPage", "/board/" + boardId);
         Long saveResult = commentService.save(commentDto, email);
         if (saveResult > 0L) {
             // 작성 성공 후 댓글 목록 리턴

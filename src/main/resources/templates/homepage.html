@@ -25,10 +25,10 @@
             <div class="col-md-4">
                 <!-- 로그인 폼 -->
                 <h3>
-                    <a th:if="${session.isEmpty()}" th:href="@{/member/login}">Login</a>
-                    <a th:if="${!session.isEmpty()}" th:href="@{/member/logout}">Logout</a>
+                    <a th:if="${session['loginEmail'] == null}" th:href="@{/member/login}">Login</a>
+                    <a th:if="${session['loginEmail'] != null}" th:href="@{/member/logout}">Logout</a>
                 </h3>
-                <p th:if="${session.isEmpty()}">Don't have an account? <a th:href="@{/member/signUp}">Sign Up</a></p>
+                <p th:if="${session['loginEmail'] == null}">Don't have an account? <a th:href="@{/member/signUp}">Sign Up</a></p>
             </div>
         </div>
     </div>
