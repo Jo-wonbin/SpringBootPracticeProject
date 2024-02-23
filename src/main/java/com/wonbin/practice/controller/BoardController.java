@@ -22,6 +22,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Set;
 
 @Tag(name = "board")
 @Controller
@@ -65,14 +66,16 @@ public class BoardController {
     @Operation(summary = "게시글 상세 조회", description = "게시글을 상세 조회합니다.")
     @GetMapping("/{id}")
     public String findById(@PathVariable Long id, Model model,
-                           @PageableDefault(page = 1) Pageable pageable) {
-        /*
-            1. 조회 수 올리기
-            2. 게시글 데이터 출력
-            3. 게시글 댓글 목록 출력
-         */
+                           @SessionAttribute(name = "viewedPosts", required = false) Set<Long> viewedPosts
+    ) {
+
         logger.info("findById for boardDetail");
-        boardService.updateHits(id);
+        if (viewedPosts != null) {
+            if (!viewedPosts.contains(id)) {
+                boardService.updateHits(id);
+                viewedPosts.add(id);
+            }
+        }
         BoardDto boardDto = boardService.findById(id);
         model.addAttribute("board", boardDto);
 
@@ -133,10 +136,10 @@ public class BoardController {
         MemberDto memberDto = memberService.findByMemberEmail(email);
         if (memberDto != null) {
             boolean success = boardService.deleteFiles(deleteFile);
-            if (success){
+            if (success) {
                 logger.info("delete images success");
                 return new ResponseEntity<>("파일 삭제 성공", HttpStatus.OK);
-            } else{
+            } else {
                 logger.info("delete images failed");
                 return new ResponseEntity<>("파일 삭제 실패", HttpStatus.BAD_REQUEST);
             }
