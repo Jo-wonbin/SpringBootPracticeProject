@@ -16,7 +16,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Controller
 @Tag(name = "Member")
@@ -77,6 +79,8 @@ public class MemberController {
             // 로그인 성공 후 세션 부여
             httpSession.setAttribute("loginEmail", loginResult.getMemberEmail());
             httpSession.setAttribute("memberName", loginResult.getMemberName());
+            Set<Long> viewedPosts = new HashSet<>();
+            httpSession.setAttribute("viewedPosts", viewedPosts);
             // 이전 페이지의 URL을 가져와서 리디렉션
             String prevPage = (String) httpSession.getAttribute("prevPage");
             if (prevPage != null) {

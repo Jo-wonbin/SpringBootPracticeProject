@@ -135,22 +135,6 @@ public class BoardService {
         }
     }
 
-
-    /*
-        게시글 전체 조회
-     */
-    @Transactional
-    public List<BoardDto> findAll() {
-        List<BoardEntity> boardEntityList = boardRepository.findAllByOrderByIdDesc();
-        List<BoardDto> boardDtoList = new ArrayList<>();
-
-        for (BoardEntity boardEntity : boardEntityList) {
-            boardDtoList.add(BoardDto.toBoardDTO(boardEntity));
-        }
-
-        return boardDtoList;
-    }
-
     /*
         게시글 상세 조회
      */
