@@ -3,6 +3,7 @@ package com.wonbin.practice.controller;
 import com.wonbin.practice.aspect.Authenticated;
 import com.wonbin.practice.dto.chat.*;
 import com.wonbin.practice.service.ChatService;
+import com.wonbin.practice.service.MemberService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -23,12 +24,14 @@ import java.util.List;
 public class ChatRoomController {
     private static final Logger logger = LoggerFactory.getLogger(ChatRoomController.class);
     private final ChatService chatService;
+    private final MemberService memberService;
 
-    @GetMapping("/oneToOne/{targetId}")
+    @GetMapping("/oneToOne")
     @Authenticated
-    public ResponseEntity findOneToOneChatRoom(@PathVariable Long targetId, HttpSession session) {
+    public ResponseEntity findOneToOneChatRoom(@RequestParam("memberEmail") String targetEmail, HttpSession session) {
         logger.info("findOneToOneChatRoom");
         String email = (String) session.getAttribute("loginEmail");
+        long targetId = memberService.findByMemberEmail(targetEmail).getId();
         if (email != null) {
             ChatRoomOneToOneDto chatRoomOneToOneDto = chatService.findOneToOneChatRoom(email, targetId);
             if (chatRoomOneToOneDto != null) {
