@@ -47,6 +47,9 @@
 
     <!-- 게시글 삭제 -->
     <button th:if="${board.memberEmail} == ${session.loginEmail}" type="button" onclick="deleteReq()">게시글 삭제</button>
+
+    <!-- 1대1 채팅 -->
+    <button th:if="${session.loginEmail != null && board.memberEmail != session.loginEmail}" type="button" onclick="oneToOneChat()">채팅하기</button>
     <!-- 댓글 작성 폼 -->
     <div id="commentForm">
         <h3>댓글 작성</h3>
@@ -104,6 +107,24 @@
                 alert("삭제에 실패하였습니다.");
             }
         });
+    }
+    const oneToOneChat = () => {
+        console.log("1대1 채팅 시작");
+        const email = [[${board.memberEmail}]];
+        // GET 요청 보내기
+        $.get("/api/chat/oneToOne", {memberEmail: email})
+            .done(function (data, textStatus, xhr) {
+                if (xhr.status === 200) {
+                    console.log("Chat room found:", data);
+                    // 채팅방이 있을 경우 채팅 페이지로 이동
+                    window.location.href = '/chatList';
+                } else {
+                    console.error("Failed to find chat room. Status:", xhr.status);
+                }
+            })
+            .fail(function (xhr, textStatus, errorThrown) {
+                console.error("Error finding chat room:", errorThrown);
+            });
     }
     /*<![CDATA[*/
     const loginEmail = /*[[${session.loginEmail}]]*/ 'default';  // 세션에서 가져온 이메일 정보
