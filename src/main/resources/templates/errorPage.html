@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+<!-- 세션에 errorMessage가 있을 때만 표시 -->
+<div th:if="${session.errorMessage}">
+    <!-- errorMessage를 h2 태그로 표시 -->
+    <h2 th:text="${session.errorMessage}"></h2>
+</div>
+<!-- 세션에 errorMessage가 없는 경우 기본 메시지 표시 -->
+<div th:unless="${session.errorMessage}">
+    <h2>오류가 발생했습니다.</h2>
+</div>
+
+</body>
+</html>
