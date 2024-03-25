@@ -7,12 +7,13 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <title>우리 동네 커뮤니티</title>
     <!-- 헤더에 필요한 스타일 및 스크립트 등 추가 -->
+    </style>
 </head>
 <body>
 
 <!-- 헤더 내용 -->
 <header>
-    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #9DD84B;">
         <a class="navbar-brand" th:href="@{/}"> </a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -20,16 +21,16 @@
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/}">Home</a>
+                    <a class="nav-link text-white" th:href="@{/}" style="color: white; font-weight: bold;">Home</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/board}">우리동네 게시판</a>
+                    <a class="nav-link text-white" th:href="@{/board}" style="color: white; font-weight: bold;">우리동네 게시판</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/restaurant}">우리동네 맛집</a>
+                    <a class="nav-link text-white" th:href="@{/restaurant}" style="color: white; font-weight: bold;">우리동네 맛집</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" th:href="@{/chatList}">채팅목록</a>
+                    <a class="nav-link text-white" th:href="@{/chatList}" style="color: white; font-weight: bold;">채팅목록</a>
                 </li>
             </ul>
         </div>
